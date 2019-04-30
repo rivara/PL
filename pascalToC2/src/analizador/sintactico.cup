@@ -1,0 +1,220 @@
+package practica.analyzer;
+//LIBRERIAS
+import java_cup.runtime.*;
+import java_cup.runtime.Symbol;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import practica.objects.*;
+//CONTROL DE ERRORESZ 
+parser code {:
+
+public void syntax_error (Symbol s){
+	System.err.println("Error de sintaxis (lexema <" + s.value.toString() + ">) en la linea " + s.left + " y en la columna " + s.right);
+	System.err.println("Error recuperado");
+}
+
+public void unrecovered_syntax_error(Symbol s){
+	System.err.println("Error de sintaxis no recuperable");
+}
+:};
+
+
+//DECLARACION DE TERMINALES
+// ver porque hector tiene algunos terminales definidos como String
+terminal String FUNCTION,PROCEDURE, BEGIN,END,VAR,REAL,OPEN_PARENTESIS,CLOSE_PARENTESIS,POINT_SEMICOLON,
+ SEMICOLON,EQUAL,PLUS,MINUS,MULTIPLICACION,DOUBLE_COLON,DIV,CONST,MOD,IDENTIFIER,NUMERIC_REAL_CONST,
+ NUMERIC_INTEGER_CONST,STRING_CONST;
+// terminal DOUBLE_COLON_EQUAL;
+//terminal RETURN; 
+//terminal VOID;
+//terminal INT;
+//terminal FLOAT;
+//terminal IF;
+//terminal THEN;
+//terminal ELSE;	
+//terminal WHILE;
+//terminal DO;
+//terminal REPEAT;
+//terminal UNTIL;
+//terminal FOR;
+//terminal DOWNTO;
+//terminal OR;
+//terminal AND;
+//terminal NOT;
+//terminal GRETTER;
+//terminal LESS;
+//terminal GRETTER_EQUAL;
+//terminal LESS_EQUAL;
+//terminal PLUS_EQUAL;
+//terminal MINUS_EQUAL;
+//terminal MULTIPLICACION_EQUAL;
+//terminal DIV_EQUAL;
+
+//terminal END_COMENT;
+//terminal JUMP;
+
+// AGRUPAR POR MORFOLOGIA
+non terminal 
+ PRG;
+non terminal 
+ BLQ;
+non terminal 
+ DCLLIST;
+non terminal 
+ SENTLIST;
+non terminal 
+ SENT;
+non terminal 
+ DCL;
+non terminal 
+ DEFCTE;
+non terminal 
+ DEFVAR;
+non terminal 
+ DEFPROC;
+non terminal 
+ DEFFUN;
+non terminal 
+ CTELIST;
+non terminal 
+ SIMPVALUE;
+non terminal 
+ DEFVARLIST;
+non terminal 
+ VARLIST;
+non terminal 
+ TBAS;
+non terminal 
+ FORMAL_PARAMLIST;
+non terminal  FORMAL_PARAM;
+non terminal  PROC_CALL;
+non terminal  ID;
+non terminal  FACTOR;
+non terminal  SUBPARAMLIST;
+non terminal  EXPLIST;
+non terminal  ASIG;
+non terminal  EXP;
+non terminal  OPARIT;
+non terminal  OP;
+
+
+
+/*ORDENAMIENTO (rompe ambigüedad de jerarquia)*/
+precedence left PLUS, MINUS,MULTIPLICACION,DIV,MOD,OPEN_PARENTESIS,CLOSE_PARENTESIS; 
+
+
+//GRAMATICA
+
+/* Ejemplo 2018
+PROGRAM ::= DEFINES:p1 PARTES:p2 {:
+			Programa p = new Programa();
+			p.declaraciones = p1.declaraciones;
+			p.funciones = p2.funciones;
+			Programa.generarFichero(p.imprimir().toString());
+			RESULT = p
+*/
+
+PRG ::= PRG:p  BLQ:b  {: RESULT = } 
+;
+BLQ ::= DCLLIST:dc BEGIN:b SENTLIST:s END:e  {: RESULT = new Blq(dc,b.toString(),s,e.toString()); parser.objCodeInitial=RESULT; :} 
+;
+
+DCLLIST ::=  DCLLIST:dcl DCL:dc {: RESULT = new Dcllist(dcl,dc); parser.objCodeInitial=RESULT; :} |;
+
+SENTLIST ::= SENT:s {: RESULT = new Sentlist(s); parser.objCodeInitial=RESULT;:} 
+|SENTLIST:sl SENT:s {: RESULT = new Sentlist(sl,s); parser.objCodeInitial=RESULT; :} 
+;
+
+DCL ::= DEFCTE:d {: RESULT = new Dcl(d); parser.objCodeInitial=RESULT; :}  
+		| DEFVAR:dv {: RESULT = new Dcl(dv); parser.objCodeInitial=RESULT; :} 
+		| DEFPROC:dp {: RESULT = new Dcl(dp); parser.objCodeInitial=RESULT; :} 
+		| DEFFUN:df {: RESULT = new Dcl(df); parser.objCodeInitial=RESULT; :} 
+;	
+
+DEFCTE ::=CONST:c CTELIST:ct {: RESULT = new Defcte(c.toString(),ct); parser.objCodeInitial=RESULT; :} 
+;
+
+CTELIST ::= IDENTIFIER:i EQUAL:e SIMPVALUE:s POINT_SEMICOLON:p{: RESULT = new Ctelist(i.toString(),e.toString(),s,p.toString()); parser.objCodeInitial=RESULT; :} 
+|CTELIST:c IDENTIFIER:i EQUAL:e SIMPVALUE:s  POINT_SEMICOLON:p{: RESULT = new Ctelist(c,i.toStting(),e.toString(),s,p.toString()); parser.objCodeInitial=RESULT; :} 
+;
+
+SIMPVALUE ::= NUMERIC_INTEGER_CONST:ni {: RESULT = new Simpvalue(ni.toString()); :}
+| NUMERIC_REAL_CONST:nr {: RESULT = new Simpvalue(nr.toString()); :}
+| STRING_CONST:s  {: RESULT = new Simpvalue(s.toString()); :}
+;
+
+DEFVAR ::= VAR:v DEFVARLIST:d POINT_SEMICOLON:p  {: RESULT = new Defvar(v,toString(),d,p.toString()); parser.objCodeInitial=RESULT; :} 
+;
+
+
+DEFVARLIST ::= VARLIST:v DOUBLE_COLON:d TBAS:t  {: RESULT = new Defvarlist(v,d,t); parser.objCodeInitial=RESULT; :} 
+| DEFVARLIST:d POINT_SEMICOLON:p VARLIST:v DOUBLE_COLON:d TBAS:t  {: RESULT = new Defvarlist(d,p.toString(),v.toString(),t); parser.objCodeInitial=RESULT; :} 
+;
+
+
+
+VARLIST ::= IDENTIFIER:i  {: RESULT = new Varlist(i.toString()); :}
+| IDENTIFIER:i  SEMICOLON:s VARLIST:v  {: RESULT = new Varlist(i.toString(),s.toString(),v); parser.objCodeInitial=RESULT; :} 
+;
+
+
+
+DEFPROC ::= PROCEDURE:p IDENTIFIER:i FORMAL_PARAMLIST:f POINT_SEMICOLON:ps BLQ:b POINT_SEMICOLON:ps{: RESULT = new Defproc(p.toString(),i.toString(),f,p.toString(),b,p.toString()); parser.objCodeInitial=RESULT; :} 
+;
+
+DEFFUN ::= FUNCTION:f IDENTIFIER:i FORMAL_PARAMLIST:fo DOUBLE_COLON:d TBAS:t POINT_SEMICOLON:ps BLQ:b POINT_SEMICOLON:ps{: RESULT = new Deffun(f.toString(),i.toString(),fo,d.toString(),t,ps.toString(),b,ps.toString()); parser.objCodeInitial=RESULT; :} 
+;
+
+FORMAL_PARAMLIST ::= OPEN_PARENTESIS FORMAL_PARAM:f CLOSE_PARENTESIS:c {: RESULT = new Formal_paramlist(o.toString(),f,c.toString()); parser.objCodeInitial=RESULT; :} | 
+;
+
+FORMAL_PARAM ::= VARLIST:v DOUBLE_COLON:d  TBAS:t {: RESULT = new Formal_param(v,d.toString(),t); parser.objCodeInitial=RESULT; :} 
+| VARLIST:v DOUBLE_COLON:d TBAS:t  POINT_SEMICOLON:ps FORMAL_PARAM:f {: RESULT = new Formal_param(v,d.toString(),t,ps.toString(),f); parser.objCodeInitial=RESULT; :} 
+;
+
+TBAS ::= NUMERIC_INTEGER_CONST:n {: RESULT = new Tbas(n.toString()); parser.objCodeInitial=RESULT; :}
+| REAL:r {: RESULT = new TbasReal(r.toString(); parser.objCodeInitial=RESULT; :}
+;
+
+SENT ::= ASIG:a POINT_SEMICOLON:ps {: RESULT = new SentAsig(a,ps.toString()); parser.objCodeInitial=RESULT; :}
+| PROC_CALL:p POINT_SEMICOLON:ps {: RESULT = new SentProcCall(p,ps.toString()); parser.objCodeInitial=RESULT; :}
+;
+
+ASIG ::= ID:i POINT_SEMICOLON:ps EXP:e {: RESULT = new Asig(i,ps.toString(),e); parser.objCodeInitial=RESULT; :}
+;
+
+ID ::= IDENTIFIER:i {: RESULT = new Id(i.toString()); parser.objCodeInitial=RESULT; :}
+;
+
+EXP ::= EXP:e OP:o EXP:e  {: RESULT = new Exp(e,o,e); parser.objCodeInitial=RESULT; :}
+| FACTOR:f  {: RESULT = new Exp(f); parser.objCodeInitial=RESULT; :}
+;
+
+OP ::= OPARIT:o  {: RESULT = new Op(o); parser.objCodeInitial=RESULT; :}
+;
+
+OPARIT ::= PLUS:p {: RESULT = new OparitPlus(p.toString()); parser.objCodeInitial=RESULT; :}
+| MINUS:mi  {: RESULT = new OparitMinus(mi.toString()); parser.objCodeInitial=RESULT; :}
+| MULTIPLICACION:mu {: RESULT = new OparitMultiplicacion(mu.toString()); parser.objCodeInitial=RESULT; :}
+| DIV:d  {: RESULT = new OparitDiv(d.toString()); parser.objCodeInitial=RESULT; :}
+| MOD:m {: RESULT = new OparitMod(m.toString()); parser.objCodeInitial=RESULT; :}
+;
+
+FACTOR ::= SIMPVALUE:s  {: RESULT = new Factor(s);  parser.objCodeInitial=RESULT; :}
+| OPEN_PARENTESIS:o EXP:e CLOSE_PARENTESIS:c {: RESULT = new Factor(o.toString(),e,c.toString()); parser.objCodeInitial=RESULT; :}
+| IDENTIFIER:i   SUBPARAMLIST:s  {: RESULT = new Asig(i.toString(),s) ; parser.objCodeInitial=RESULT; :}
+;
+
+SUBPARAMLIST ::=  OPEN_PARENTESIS:o EXPLIST:e CLOSE_PARENTESIS:c  {: RESULT = new Subparamlist(o.toString(),e,c.toString()); parser.objCodeInitial=RESULT; :}
+
+;
+
+EXPLIST ::= EXP:e  {: RESULT = new Explist(e);  parser.objCodeInitial=RESULT; :}
+| EXP:e SEMICOLON:s EXPLIST:ex  {: RESULT = new Explist(e,s.toString(),ex);parser.objCodeInitial=RESULT; :}
+;
+ 
+PROC_CALL ::= IDENTIFIER:i SUBPARAMLIST:s {: RESULT = new proccall(i.toString(),s); parser.objCodeInitial=RESULT; :}
+;
+
+
+
