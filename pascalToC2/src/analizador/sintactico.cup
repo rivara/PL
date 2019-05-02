@@ -1,12 +1,12 @@
-package practica.analyzer;
+	package practica.analyzer;
 //LIBRERIAS
-import java_cup.runtime.*;
-import java_cup.runtime.Symbol;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import practica.objects.*;
+	import java_cup.runtime.*;
+	import java_cup.runtime.Symbol;
+	import java.io.FileOutputStream;
+	import java.io.IOException;
+	import practica.objetos.*;
 //CONTROL DE ERRORESZ 
-parser code {:
+	parser code {:
 
 public void syntax_error (Symbol s){
 	System.err.println("Error de sintaxis (lexema <" + s.value.toString() + ">) en la linea " + s.left + " y en la columna " + s.right);
@@ -17,13 +17,15 @@ public void unrecovered_syntax_error(Symbol s){
 	System.err.println("Error de sintaxis no recuperable");
 }
 :};
-
-
+	
+	
 //DECLARACION DE TERMINALES
 // ver porque hector tiene algunos terminales definidos como String
-terminal String FUNCTION,PROCEDURE, BEGIN,END,VAR,REAL,OPEN_PARENTESIS,CLOSE_PARENTESIS,POINT_SEMICOLON,
- SEMICOLON,EQUAL,PLUS,MINUS,MULTIPLICACION,DOUBLE_COLON,DIV,CONST,MOD,IDENTIFIER,NUMERIC_REAL_CONST,
- NUMERIC_INTEGER_CONST,STRING_CONST;
+	terminal String PROGRAM,FUNCTION,PROCEDURE, BEGIN,END,VAR,OPEN_PARENTESIS,CLOSE_PARENTESIS,POINT_SEMICOLON,
+	 SEMICOLON,EQUAL,DOUBLE_COLON,CONST,IDENTIFIER,NUMERIC_REAL_CONST,
+	 NUMERIC_INTEGER_CONST,STRING_CONST,VACIO;
+	 
+	 //MOD , MULTIPLICACION , PLUS ,DIV,MINUS,REAL
 // terminal DOUBLE_COLON_EQUAL;
 //terminal RETURN; 
 //terminal VOID;
@@ -49,150 +51,372 @@ terminal String FUNCTION,PROCEDURE, BEGIN,END,VAR,REAL,OPEN_PARENTESIS,CLOSE_PAR
 //terminal MINUS_EQUAL;
 //terminal MULTIPLICACION_EQUAL;
 //terminal DIV_EQUAL;
-
+	
 //terminal END_COMENT;
 //terminal JUMP;
-
+	
 //NO TERMINALES
 // Top de la gramatica 
 // metodo list de arraylist 
 // metodo recorrer y expulsarlo en el fichero  
-non terminal Programa PRG ,BLQ;
-//segundo nivel
-non terminal Subprograma DCLLIST,DCL,SENTLIST,SENT; 
-//tercer nivel
-non terminal Sentencia ASIG, PROC_CALL,FACTOR,SIMPLEVALUE,SUBPARAMLIST;
-non terminal Definiciones DEFCTE, DEFVAR,DEFPROC,DEFFUN;
-//cuarto nivel
-non terminal Expresion CTELIST,EXP,DEFVARLIST, VARLIST,FORMAL_PARAMLIST,FORMAL_PARAM,EXPLIST;
- // ultimo nivel ¿arrays de strings?
-non terminal Simbolos  SIMPVALUE,TBAS,OP,OPARIT,ID;
-
-
-
-
-
-
-
+	non terminal Programa PRG,BLQ;
+	//primer nivel
+	non terminal Sentencia SENTLIST,SENT;
+	//PROC_CALL;
+	non terminal Definicion DCLLIST,DCL,DEFCTE, DEFVAR,DEFPROC,DEFFUN;
+	//segundo nivel
+	non terminal Declaraciones CTELIST,SIMPVALUE,DEFVARLIST,VARLIST,FORMAL_PARAMLIST,FORMAL_PARAM;
+	//non terminal Expresion ASIG,EXP,FACTOR,SUBPARAMLIST,EXPLIST;
+	 // ultimo nivel + TERMINALES 
+	non terminal Simbolos TBAS;
+//	non terminal Simbolos  SIMPVALUE,TBAS,OP,OPARIT,ID;
+	
+	
+	
+	
+	
+	
+	
 /*ORDENAMIENTO (rompe ambigüedad de jerarquia)*/
-precedence left PLUS, MINUS,MULTIPLICACION,DIV,MOD,OPEN_PARENTESIS,CLOSE_PARENTESIS; 
-
-
+	precedence left OPEN_PARENTESIS,CLOSE_PARENTESIS; 
+	//  PLUS, MINUS,MULTIPLICACION,DIV,MOD,
+	
 //GRAMATICA
+	
+	
+PRG ::= PROGRAM IDENTIFIER:id  BLQ:b  {: 
+	//eporta todos los arraylist a un fichero de texto llamado Programa.c
+main.exportaFichero(p)
+//simbolo 
+	Simbolo s= new Simbolo();
+	s.program ="Program";
+	s.esProgram = true;		
+//identificador 
+	s.identificador =id;
+	s.esIdentificador = true;
+	Programa programa =  new Programa();
+	programa.simbolo.add(s)
+    programa.bloque =b.bloque;
+	RESULT =programa; :} 
+	;
+	
+	BLQ ::= DCLLIST:dc BEGIN SENTLIST:s END{:
+//añado dclista
+//simbolo 
+	Simbolo b= new Simbolo();
+	b.empieza ="begin";
+	b.esEmpieza = true;		
 
-/* Ejemplo 2018
-PROGRAM ::= DEFINES:p1 PARTES:p2 {:
-			Programa p = new Programa();
-			p.declaraciones = p1.declaraciones;
-			p.funciones = p2.funciones;
-			Programa.generarFichero(p.imprimir().toString());
-			RESULT = p
-*/
+	Simbolo e= new Simbolo();
+	e.fin ="end";
+	e.esFin = true;	
+//añado en el list de arraylist de programa todo
+	Programa programa =  new Programa();
+	programa.simbolos.add(b);
+	programa.definiciones=dc.definiciones;	
+	programa.simbolos.add(e);
+	programa.sentencias=s.sentencias;
+	programa.bloque.add(b); 
+	RESULT =programa; :} 
+	;
+		
+	DCLLIST ::=  DCLLIST:dcl DCL:dc {: RESULT = 
+//Acumulacion de todos los dcl de la llamada recursiva
+	Definicion definicion= new Definicion();
+	definicion.listaDefiniciones=dcl.listaDefiniciones;
+	definicion.listaDefiniciones.add(dc);
+	RESULT=definicion;
+	:} |VACIO|;
+	
+	SENTLIST ::= SENT:s {: 
+//Acumulacion de 1 elemento solo en un arraylist
+	Sentencia sentencia= new Sentencia();
+	sentancia.sentlista.add(s);
+	RESULT =sentancia; :} 
+	
+	|SENTLIST:sl SENT:s {: 
+//Acumulacion de todos los dcl de la llamada recursiva
+	Sentencia sentencia= new Sentencia();
+	sentencia.listaSentencias=sl.listaSentencias;
+	sentencia.listaSentencias.add(s);
+	RESULT = sentencia; :} 
+	;
+	DCL ::=DEFCTE:d {: 
+		   	Definicion definicion= new Definicion();
+			definicion.defcte=d.defcte;
+			RESULT =definicion; :}  
+		|DEFVAR:dv {:
+	 		Definicion definicion= new Definicion();
+			definicion.defvar=dv.defvar;
+			RESULT = definicion; :} 
+		| DEFPROC:dp{: 
+			Definicion definicion= new Definicion();
+			definicion.defproc=dp.defproc;
+			RESULT =definicion; :} 
+		| DEFFUN:df{: 
+			Definicion definicion= new Definicion();
+			definicion.deffun=df.deffun;
+			RESULT =definicion; :} 
+	;	
+	
+	DEFCTE ::=CONST:cons CTELIST:ct {: 
+			Simbolo cns= new Simbolo();
+			cns.consatnte =cons;
+			cns.esConstante = true;
+			Definicion definicion= new Definicion();	
+			definicion.simbolos.add(cns);
+			definicion.declaracion.ctelista=ct.ctelista;
+			RESULT =definicion;  :} 
+	;
+	
+	CTELIST ::= IDENTIFIER:i EQUAL:e SIMPVALUE:s POINT_SEMICOLON:p{: 
+			Simbolo id= new Simbolo();
+			id.identificador =i;
+			id.esIdenoicador=true;
+			Simbolo eq= new Simbolo();
+			eq.igual =e;
+			eq.esIgual=true;			
+			Simbolo ps= new Simbolo();
+			ps.puntocoma =p;
+			p.esPuntocoma=true;
+//añado todo a expresion
+			Declaraciones declaraciones= new Declaraciones();
 
-PRG ::= PRG:p  BLQ:b  {: 
-Programa p = new Programa();
-p.cabecera
-RESULT =p } 
-;
-BLQ ::= DCLLIST:dc BEGIN:b SENTLIST:s END:e  {: RESULT = :} 
-;
-
-DCLLIST ::=  DCLLIST:dcl DCL:dc {: RESULT = :} |;
-
-SENTLIST ::= SENT:s {: RESULT = :} 
-|SENTLIST:sl SENT:s {: RESULT =  :} 
-;
-
-DCL ::= DEFCTE:d {: RESULT =  :}  
-		| DEFVAR:dv {: RESULT =  :} 
-		| DEFPROC:dp {: RESULT = :} 
-		| DEFFUN:df {: RESULT = :} 
-;	
-
-DEFCTE ::=CONST:c CTELIST:ct {: RESULT =  :} 
-;
-
-CTELIST ::= IDENTIFIER:i EQUAL:e SIMPVALUE:s POINT_SEMICOLON:p{: RESULT = :} 
-|CTELIST:c IDENTIFIER:i EQUAL:e SIMPVALUE:s  POINT_SEMICOLON:p{: RESULT =:} 
-;
-
-SIMPVALUE ::= NUMERIC_INTEGER_CONST:ni {: RESULT = :}
-| NUMERIC_REAL_CONST:nr {: RESULT = :}
-| STRING_CONST:s  {: RESULT = :}
-;
-
-DEFVAR ::= VAR:v DEFVARLIST:d POINT_SEMICOLON:p  {: RESULT =  :} 
-;
-
-
-DEFVARLIST ::= VARLIST:v DOUBLE_COLON:d TBAS:t  {: RESULT =  :} 
-| DEFVARLIST:d POINT_SEMICOLON:p VARLIST:v DOUBLE_COLON:d TBAS:t  {: RESULT =:} 
-;
-
-
-
-VARLIST ::= IDENTIFIER:i  {: RESULT = :}
-| IDENTIFIER:i  SEMICOLON:s VARLIST:v  {: RESULT =:} 
-;
-
-
-
-DEFPROC ::= PROCEDURE:p IDENTIFIER:i FORMAL_PARAMLIST:f POINT_SEMICOLON:ps BLQ:b POINT_SEMICOLON:ps{: RESULT =:} 
-;
-
-DEFFUN ::= FUNCTION:f IDENTIFIER:i FORMAL_PARAMLIST:fo DOUBLE_COLON:d TBAS:t POINT_SEMICOLON:ps BLQ:b POINT_SEMICOLON:ps{: RESULT = :} 
-;
-
-FORMAL_PARAMLIST ::= OPEN_PARENTESIS FORMAL_PARAM:f CLOSE_PARENTESIS:c {: RESULT =:} | 
-;
-
-FORMAL_PARAM ::= VARLIST:v DOUBLE_COLON:d  TBAS:t {: RESULT =:} 
-| VARLIST:v DOUBLE_COLON:d TBAS:t  POINT_SEMICOLON:ps FORMAL_PARAM:f {: RESULT =  :} 
-;
-
-TBAS ::= NUMERIC_INTEGER_CONST:n {: RESULT = :}
-| REAL:r {: RESULT =  :}
-;
-
-SENT ::= ASIG:a POINT_SEMICOLON:ps {: RESULT = :}
-| PROC_CALL:p POINT_SEMICOLON:ps {: RESULT =  :}
-;
-
-ASIG ::= ID:i POINT_SEMICOLON:ps EXP:e {: RESULT = :}
-;
-
-ID ::= IDENTIFIER:i {: RESULT =  :}
-;
-
-EXP ::= EXP:e OP:o EXP:e  {: RESULT =  :}
-| FACTOR:f  {: RESULT = :}
-;
-
-OP ::= OPARIT:o  {: RESULT =  :}
-;
-
-OPARIT ::= PLUS:p {: RESULT = :}
-| MINUS:mi  {: RESULT =  :}
-| MULTIPLICACION:mu {:  :}
-| DIV:d  {: RESULT = :}
-| MOD:m {: RESULT = :}
-;
-
-FACTOR ::= SIMPVALUE:s  {: RESULT =  :}
-| OPEN_PARENTESIS:o EXP:e CLOSE_PARENTESIS:c {: RESULT = :}
-| IDENTIFIER:i   SUBPARAMLIST:s  {: RESULT = :}
-;
-
-SUBPARAMLIST ::=  OPEN_PARENTESIS:o EXPLIST:e CLOSE_PARENTESIS:c  {: RESULT =  :}
-
-;
-
-EXPLIST ::= EXP:e  {: RESULT = new Explist(e);  parser.objCodeInitial=RESULT; :}
-| EXP:e SEMICOLON:s EXPLIST:ex  {: RESULT =  :}
-;
- 
-PROC_CALL ::= IDENTIFIER:i SUBPARAMLIST:s {: RESULT = :}
-;
+			declaraciones.simbolo.add(id);
+			declaraciones.simbolo.add(eq);
+			declaraciones.ctelista=s.ctelista;
+			declaraciones.simbolo.add(ps);
+			RESULT =declaraciones; :} 
 
 
+	|CTELIST:cl IDENTIFIER:i EQUAL:e SIMPVALUE:s  POINT_SEMICOLON:p{: 
+	Simbolo id= new Simbolo();
+			id.identificador =i;
+			id.esIdenoicador=true;
+			Simbolo eq= new Simbolo();
+			eq.igual =e;
+			eq.esIgual=true;			
+			Simbolo ps= new Simbolo();
+			ps.puntocoma =p;
+			p.esPuntocoma=true;
+//añado todo a expresion
+			Declaraciones declaraciones= new Declaraciones();
+// paso la lista entera 
+//RVR PROBLEMA CONCATENAR CON LO ANTERIOR				
+			declaraciones.listaSentencias.addAll(cl);
+			declaraciones.simbolo.add(id);
+			declaraciones.simbolo.add(eq);
+			declaraciones.ctelista=s.ctelista;
+			declaraciones.simbolo.add(ps);
+			RESULT =declaraciones; :} 
+	;
+	
+	SIMPVALUE ::= NUMERIC_INTEGER_CONST:ni {:
+			Simbolo nic= new Simbolo();
+			nic.numericoEnteroConstante =ni;
+			eq.esNumericoEnteroConstante=true;			
+	 		RESULT =nic :}
+	 		
+			| NUMERIC_REAL_CONST:nr {: 
+			Simbolo nrc= new Simbolo();
+			nrc.numericoRealConstante =e;
+			nrc.esNumericoRealConstante=true;			
+			RESULT =nrc :}
+			
+			| STRING_CONST:sc  {: 
+			Simbolo scons= new Simbolo();
+			scons.textoconstante =e;
+			scons.esTextoconstante=true;			
+			RESULT =scons :}
+	;
+	
+	DEFVAR ::= VAR:v DEFVARLIST:d POINT_SEMICOLON:p  {: 
+			Simbolo var= new Simbolo();
+			var.variable =v;
+			var.esVariable=true;			
+			Simbolo ps= new Simbolo();
+			ps.puntocoma =p;
+			p.esPuntocoma=true;
+//Agrupo todo en definicion		
+			Definicion definicion= new Definicion();
+			definicion.simbolo.add(v);
+			definicion.declaraciones.defvarLista= d.defvarLista;
+			definicion.simbolo.add(p);
+			RESULT =definicion;  :} 
+	;
+	
+	DEFVARLIST ::= VARLIST:v DOUBLE_COLON:d TBAS:t  {:
+			Simbolo dbc= new Simbolo();
+			dbc.dosPuntos =d;
+			dbc.dosPuntos=true;		
+			Definicion definicion= new Definicion();
+			definicion.varLista=v.varLista;
+			definicion.add(d);
+			definicion.tbas=t.tbas;
+			RESULT = definicion; :} 
+	| DEFVARLIST:d POINT_SEMICOLON:p VARLIST:v DOUBLE_COLON:d TBAS:t  {:
+//RVR PROBLEMA CONCATENAR CON LO ANTERIOR		
+			Simbolo ps= new Simbolo();
+			ps.puntocoma =p;
+			p.esPuntocoma=true;		
+			Simbolo dbc= new Simbolo();
+			dbc.dosPuntos =d;
+			dbc.esDosPuntos=true;	
+			Definicion definicion= new Definicion();
+			declaraciones.listaDefvarlista.addAll(cl);
+			definicion.varLista=v.varLista;
+			definicion.add(d);
+			definicion.tbas=t.tbas;
+ 			RESULT =definicion;:} 
+	;
+	
+	
+	
+	VARLIST ::= IDENTIFIER:i  {: 
+			Simbolo id= new Simbolo();
+			id.identificador =i;
+			id.esIdentificador=true;
+			Definicion definicion= new Definicion();
+			definicion.add(id);		
+       		RESULT =id; :}
+	| IDENTIFIER:i  SEMICOLON:s VARLIST:v  {: 
+			Simbolo id= new Simbolo();	
+			id.identificador =i;
+			id.esIdentificador=true;	
+			Simbolo sc= new Simbolo();	
+			sc.coma =s;
+			sc.esComa=true;
+			Definicion definicion= new Definicion();
+			definicion.add(id);	
+			definicion.add(sc);	
+			definicion.varLista=v.varLista;
+       		RESULT =definicion; :}
+	;
+	
 
+	DEFPROC ::= PROCEDURE:p IDENTIFIER:i FORMAL_PARAMLIST:fo POINT_SEMICOLON:ps1 BLQ:b POINT_SEMICOLON:ps2{:
+  			Simbolo pro= new Simbolo();	
+			pro.procedimiento =p;
+			pro.esProcedimiento=true;
+			Simbolo id= new Simbolo();	
+			id.identificador =i;
+			id.esIdentificador=true;	
+			Simbolo pos1= new Simbolo();
+			pos1.puntocoma =ps1;
+			pos1.esPuntocoma=true;
+			Simbolo pos2= new Simbolo();
+			pos2.puntocoma =ps2;
+			pos2.esPuntocoma=true;
+/////////////////////////////////			
+			Definicion definicion= new Definicion();
+			definicion.add(pro);	
+			definicion.add(id);	
+			definicion.formal_paramLista=fo.formal_paramLista;
+			definicion.add(pos1);	
+			definicion.bloque=b.bloque;
+			definicion.add(pos2);
+			RESULT =definicion;:} 
+	;
+	
+	DEFFUN ::= FUNCTION:f IDENTIFIER:i FORMAL_PARAMLIST:fo DOUBLE_COLON:d TBAS:t POINT_SEMICOLON:p1 BLQ:b POINT_SEMICOLON:p2{: 
+	  		Simbolo fun= new Simbolo();	
+			fun.funcion =f;
+			fun.esFuncion=true;
+			Simbolo id= new Simbolo();	
+			id.identificador =i;
+			id.esIdentificador=true;
+			Simbolo dbc= new Simbolo();
+			dbc.dosPuntos =d;
+			dbc.esDosPuntos=true;	
+			Simbolo pos1= new Simbolo();
+			pos1.puntocoma =p1;
+			pos1.esPuntocoma=true;
+			Simbolo pos2= new Simbolo();
+			pos2.puntocoma =p2;
+			pos2.esPuntocoma=true;
+//////////////////////////////
+			Definicion definicion= new Definicion();
+			definicion.add(fun);	
+			definicion.add(id);	
+			definicion.formal_paramLista=fo.formal_paramLista;
+			definicion.tbas=t.tbas;
+			definicion.bloque=b.bloque;
+			RESULT =definicion; :} 
+	;
+	
+	
+
+	FORMAL_PARAMLIST ::= OPEN_PARENTESIS FORMAL_PARAM:f CLOSE_PARENTESIS:c {: 
+			Definicion definicion= new Definicion();
+			definicion.add(id);	
+			definicion.add(sc);	
+			definicion.varLista=v.varLista;
+			RESULT =definicion;:} |VACIO|
+	;
+	/*
+	
+	FORMAL_PARAM ::= VARLIST:v DOUBLE_COLON:d  TBAS:t {:
+			Definicion definicion= new Definicion();
+			definicion.add(id);	
+			definicion.add(sc);	
+		
+	 		RESULT =definicion; :} 
+	| VARLIST:v DOUBLE_COLON:d TBAS:t  POINT_SEMICOLON:ps FORMAL_PARAM:f {: 
+			Simbolo dbc= new Simbolo();
+			dbc.dosPuntos =d;
+			dbc.esDosPuntos=true;
+			Definicion definicion= new Definicion();
+			definicion.add(id);	
+			definicion.add(sc);	
+			definicion.varLista=v.varLista;
+			RESULT =definicion;  :} 
+	;
+	
+	TBAS ::= NUMERIC_INTEGER_CONST:n {: RESULT = :}
+	| REAL:r {: RESULT =  :}
+	;
+	
+	
+	////////////////////EXP
+	SENT ::= ASIG:a POINT_SEMICOLON:ps {: RESULT = :}
+	| PROC_CALL:p POINT_SEMICOLON:ps {: RESULT =  :}
+	;
+	
+	ASIG ::= ID:i POINT_SEMICOLON:ps EXP:e {: RESULT = :}
+	;
+	
+	ID ::= IDENTIFIER:i {: RESULT =  :}
+	;
+	
+	EXP ::= EXP:e OP:o EXP:e  {: RESULT =  :}
+	| FACTOR:f  {: RESULT = :}
+	;
+	
+	OP ::= OPARIT:o  {: RESULT =  :}
+	;
+	
+	OPARIT ::= PLUS:p {: RESULT = :}
+	| MINUS:mi  {: RESULT =  :}
+	| MULTIPLICACION:mu {:  :}
+	| DIV:d  {: RESULT = :}
+	| MOD:m {: RESULT = :}
+	;
+	
+	FACTOR ::= SIMPVALUE:s  {: RESULT =  :}
+	| OPEN_PARENTESIS:o EXP:e CLOSE_PARENTESIS:c {: RESULT = :}
+	| IDENTIFIER:i   SUBPARAMLIST:s  {: RESULT = :}
+	;
+	
+	SUBPARAMLIST ::=  OPEN_PARENTESIS:o EXPLIST:e CLOSE_PARENTESIS:c  {: RESULT =  :}
+	
+	;
+	
+	EXPLIST ::= EXP:e  {: RESULT = new Explist(e);  parser.objCodeInitial=RESULT; :}
+	| EXP:e SEMICOLON:s EXPLIST:ex  {: RESULT =  :}
+	;
+	 
+	PROC_CALL ::= IDENTIFIER:i SUBPARAMLIST:s {: RESULT = :}
+	;
+	
+	*/
+	
