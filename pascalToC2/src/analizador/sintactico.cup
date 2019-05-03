@@ -23,7 +23,7 @@ public void unrecovered_syntax_error(Symbol s){
 // ver porque hector tiene algunos terminales definidos como String
 	terminal String PROGRAM,FUNCTION,PROCEDURE, BEGIN,END,VAR,OPEN_PARENTESIS,CLOSE_PARENTESIS,POINT_SEMICOLON,
 	 SEMICOLON,EQUAL,DOUBLE_COLON,CONST,IDENTIFIER,NUMERIC_REAL_CONST,
-	 NUMERIC_INTEGER_CONST,STRING_CONST,VACIO;
+	 NUMERIC_INTEGER_CONST,STRING_CONST,VACIO,MOD,MULTIPLICACION,PLUS,DIV,MINUS;
 	 
 	 //MOD , MULTIPLICACION , PLUS ,DIV,MINUS,REAL
 // terminal DOUBLE_COLON_EQUAL;
@@ -66,10 +66,9 @@ public void unrecovered_syntax_error(Symbol s){
 	non terminal Definicion DCLLIST,DCL,DEFCTE, DEFVAR,DEFPROC,DEFFUN;
 	//segundo nivel
 	non terminal Declaraciones CTELIST,SIMPVALUE,DEFVARLIST,VARLIST,FORMAL_PARAMLIST,FORMAL_PARAM;
-	//non terminal Expresion ASIG,EXP,FACTOR,SUBPARAMLIST,EXPLIST;
+	non terminal Expresion ASIG,EXP,FACTOR,SUBPARAMLIST,EXPLIST,PROC_CALL;
 	 // ultimo nivel + TERMINALES 
-	non terminal Simbolos TBAS;
-//	non terminal Simbolos  SIMPVALUE,TBAS,OP,OPARIT,ID;
+	non terminal Simbolos  TBAS,OP,OPARIT,ID;
 	
 	
 	
@@ -346,77 +345,211 @@ main.exportaFichero(p)
 	
 	
 
-	FORMAL_PARAMLIST ::= OPEN_PARENTESIS FORMAL_PARAM:f CLOSE_PARENTESIS:c {: 
+	FORMAL_PARAMLIST ::= OPEN_PARENTESIS:o FORMAL_PARAM:f CLOSE_PARENTESIS:c {: 
+			Simbolo op= new Simbolo();
+			op.abreParenteis =o;
+			op.esAbreParenteis=true;	
+			
+			Simbolo cp= new Simbolo();
+			cp.cierraParentesis =c;
+			cp.esCierraParentesis=true;	
+
 			Definicion definicion= new Definicion();
-			definicion.add(id);	
-			definicion.add(sc);	
-			definicion.varLista=v.varLista;
+			definicion.add(cp);	
+			definicion.parametrosFormales=f.parametrosFormales;
+			definicion.add(cp);	
 			RESULT =definicion;:} |VACIO|
 	;
-	/*
+	
+	
 	
 	FORMAL_PARAM ::= VARLIST:v DOUBLE_COLON:d  TBAS:t {:
-			Definicion definicion= new Definicion();
-			definicion.add(id);	
-			definicion.add(sc);	
-		
-	 		RESULT =definicion; :} 
-	| VARLIST:v DOUBLE_COLON:d TBAS:t  POINT_SEMICOLON:ps FORMAL_PARAM:f {: 
 			Simbolo dbc= new Simbolo();
 			dbc.dosPuntos =d;
 			dbc.esDosPuntos=true;
 			Definicion definicion= new Definicion();
-			definicion.add(id);	
-			definicion.add(sc);	
 			definicion.varLista=v.varLista;
+			definicion.add(dbc);	
+			definicion.tbas=t.tbas;
+	 		RESULT =definicion; :} 
+	| VARLIST:v DOUBLE_COLON:d TBAS:t  POINT_SEMICOLON:ps FORMAL_PARAM:f {: 
+			Simbolo dbc= new Simbolo();
+			dbc.dosPuntos =d;
+			dbc.esDosPuntos=true;	
+			Simbolo pos= new Simbolo();
+			pos.puntocoma =ps;
+			pos.esPuntocoma=true;
+
+			Definicion definicion= new Definicion();
+			definicion.varLista=v.varLista;	
+			definicion.add(dbc);	
+			definicion.tbas=t.tbas;
+			definicion.add(ps);	
+			definicion.parametrosFormales=f.parametrosFormales;
 			RESULT =definicion;  :} 
 	;
 	
-	TBAS ::= NUMERIC_INTEGER_CONST:n {: RESULT = :}
-	| REAL:r {: RESULT =  :}
+	TBAS ::= NUMERIC_INTEGER_CONST:n {: 
+			Simbolo simbolo= new Simbolo();
+			simbolo.numericoEnteroConstante =ni;
+			simbolo.esNumericoEnteroConstante=true;	
+			RESULT =simbolo; :}
+	| NUMERIC_REAL_CONST:r {: 
+			Simbolo simbolo= new Simbolo();
+			simbolo.real =ni;
+			simbolo.esReal=true;	
+			RESULT =simbolo;  :}
 	;
 	
 	
 	////////////////////EXP
-	SENT ::= ASIG:a POINT_SEMICOLON:ps {: RESULT = :}
-	| PROC_CALL:p POINT_SEMICOLON:ps {: RESULT =  :}
+	SENT ::= ASIG:a POINT_SEMICOLON:ps {: 
+			Simbolo pos= new Simbolo();
+			pos.puntocoma =ps;
+			pos.esPuntocoma=true;
+			Expresion expresion= new Expresion();
+			expresion.asig=a.asig;
+			expresion.add(pos);
+			RESULT =expresion; :}
+	| PROC_CALL:p POINT_SEMICOLON:ps {: 
+			Simbolo pos= new Simbolo();
+			pos.puntocoma =ps;
+			pos.esPuntocoma=true;
+			Expresion expresion= new Expresion();
+			expresion.procCall=p.procCall;
+			expresion.add(pos);
+			RESULT =expresion;  :}
 	;
 	
-	ASIG ::= ID:i POINT_SEMICOLON:ps EXP:e {: RESULT = :}
+	
+
+	ASIG ::= ID:i POINT_SEMICOLON:ps EXP:e {: 
+			Simbolo pos= new Simbolo();
+			pos.puntocoma =ps;
+			pos.esPuntocoma=true;
+			Expresion expresion= new Expresion();
+			expresion.id=i.id;
+			expresion.add(pos);
+			expresion.exp=e.exp;
+			RESULT =expresion; :}
 	;
 	
-	ID ::= IDENTIFIER:i {: RESULT =  :}
+	ID ::= IDENTIFIER:i {: 
+			Simbolo simbolo= new Simbolo();
+			simbolo.identificador =i;
+			simbolo.esIdentificador=true;
+			RESULT = simbolo; :}
 	;
 	
-	EXP ::= EXP:e OP:o EXP:e  {: RESULT =  :}
-	| FACTOR:f  {: RESULT = :}
+	EXP ::= EXP:e1 OP:o EXP:e2  {: 
+			Expresion expresion= new Expresion();
+			expresion.exp=e1;
+			expresion.op=o;
+			expresion.exp=e2;
+			RESULT=expresion;  :}
+	| FACTOR:f  {: 
+			Expresion expresion= new Expresion();
+			expresion.factor=f.factor;
+			RESULT =expresion; :}
 	;
 	
-	OP ::= OPARIT:o  {: RESULT =  :}
+	OP ::= OPARIT:o  {: 
+			Expresion expresion= new Expresion();
+			expresion.op=o;
+			RESULT =expresion;  :}
 	;
 	
-	OPARIT ::= PLUS:p {: RESULT = :}
-	| MINUS:mi  {: RESULT =  :}
-	| MULTIPLICACION:mu {:  :}
-	| DIV:d  {: RESULT = :}
-	| MOD:m {: RESULT = :}
+	OPARIT ::= PLUS:p {: 
+			Simbolo simbolo= new Simbolo();
+			simbolo.mas =p;
+			simbolo.esMas=true;
+			RESULT =simbolo; 
+	:}
+	| MINUS:mi  {: 
+			Simbolo simbolo= new Simbolo();
+			simbolo.menos mi;
+			simbolo.esMenos=true;
+			RESULT =simbolo;  
+	:}
+	| MULTIPLICACION:mu {:  
+			Simbolo simbolo= new Simbolo();
+			simbolo.multiplica =mu;
+			simbolo.esMultiplica=true;
+			RESULT=simbolo;
+	:}
+	| DIV:d  {: 
+			Simbolo simbolo= new Simbolo();
+			simbolo.divide =d;
+			simbolo.esDivide=true;
+			RESULT =simbolo;
+	 :}
+	| MOD:m {: 
+			Simbolo simbolo= new Simbolo();
+			simbolo.mod =m;
+			simbolo.esMod=true;
+			RESULT = simbolo;
+	:}
 	;
 	
-	FACTOR ::= SIMPVALUE:s  {: RESULT =  :}
-	| OPEN_PARENTESIS:o EXP:e CLOSE_PARENTESIS:c {: RESULT = :}
-	| IDENTIFIER:i   SUBPARAMLIST:s  {: RESULT = :}
+	
+	
+	FACTOR ::= SIMPVALUE:s  {: 
+		Expresion expresion= new Expresion();
+		expresion.valorsimple=s.valorsimple;
+		RESULT =expresion;  :}
+	| OPEN_PARENTESIS:o EXP:e CLOSE_PARENTESIS:c {:
+			Simbolo op= new Simbolo();
+			op.abreParenteis =o;
+			op.esAbreParenteis=true;	
+			Simbolo cp= new Simbolo();
+			cp.cierraParentesis =c;
+			cp.esCierraParentesis=true;	 
+			Expresion expresion= new Expresion();
+			expresion.add(op);
+			expresion.exp=e.exp;
+			expresion.add(cp);
+			RESULT =expresion; :}
+	| IDENTIFIER:i  SUBPARAMLIST:s  {: 
+			Simbolo id= new Simbolo();
+			simbolo.identificador =i;
+			simbolo.esIdentificador=true;
+			Expresion expresion= new Expresion();
+			expresion.add(id);
+			expresion.subparamLista=s.subparamLista;
+			RESULT =expresion; 
+	:}
 	;
 	
-	SUBPARAMLIST ::=  OPEN_PARENTESIS:o EXPLIST:e CLOSE_PARENTESIS:c  {: RESULT =  :}
+	SUBPARAMLIST ::=  OPEN_PARENTESIS:o EXPLIST:e CLOSE_PARENTESIS:c  {: 
+			Simbolo op= new Simbolo();
+			op.abreParenteis =o;
+			op.esAbreParenteis=true;	
+			Simbolo cp= new Simbolo();
+			cp.cierraParentesis =c;
+			cp.esCierraParentesis=true;	 
+			Expresion expresion= new Expresion();
+			expresion.add(op);
+			expresion.expLista=e.expLista;
+			expresion.add(cp);
+			RESULT =expresion;
+		:}
+		;
 	
-	;
-	
-	EXPLIST ::= EXP:e  {: RESULT = new Explist(e);  parser.objCodeInitial=RESULT; :}
-	| EXP:e SEMICOLON:s EXPLIST:ex  {: RESULT =  :}
+	EXPLIST ::= EXP:e  {: 
+			Expresion expresion= new Expresion();
+			expresion.exp=e.exp;
+			RESULT =expresion; :}
+	| EXP:e SEMICOLON:s EXPLIST:ex  {: 
+			Expresion expresion= new Expresion();
+			expresion.expLista=e.expLista;
+			RESULT =expresion;  :}
 	;
 	 
-	PROC_CALL ::= IDENTIFIER:i SUBPARAMLIST:s {: RESULT = :}
+	PROC_CALL ::= IDENTIFIER:i SUBPARAMLIST:s {:
+			Expresion expresion= new Expresion();
+ 			expresion.procCall=p.procCall;
+			RESULT =expresion; :}
 	;
 	
-	*/
+	
 	
