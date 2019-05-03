@@ -68,7 +68,7 @@ public void unrecovered_syntax_error(Symbol s){
 	non terminal Declaraciones CTELIST,SIMPVALUE,DEFVARLIST,VARLIST,FORMAL_PARAMLIST,FORMAL_PARAM;
 	non terminal Expresion ASIG,EXP,FACTOR,SUBPARAMLIST,EXPLIST,PROC_CALL;
 	 // ultimo nivel + TERMINALES 
-	non terminal Simbolos  TBAS,OP,OPARIT,ID;
+	non terminal Simbolo  TBAS,OP,OPARIT,ID;
 	
 	
 	
@@ -77,15 +77,14 @@ public void unrecovered_syntax_error(Symbol s){
 	
 	
 /*ORDENAMIENTO (rompe ambigüedad de jerarquia)*/
-	precedence left OPEN_PARENTESIS,CLOSE_PARENTESIS; 
-	//  PLUS, MINUS,MULTIPLICACION,DIV,MOD,
+	precedence left OPEN_PARENTESIS,CLOSE_PARENTESIS, PLUS, MINUS,MULTIPLICACION,DIV,MOD;
 	
 //GRAMATICA
 	
 	
 PRG ::= PROGRAM IDENTIFIER:id  BLQ:b  {: 
 	//eporta todos los arraylist a un fichero de texto llamado Programa.c
-main.exportaFichero(p)
+	//main.exportaFichero(p)
 //simbolo 
 	Simbolo s= new Simbolo();
 	s.program ="Program";
@@ -111,9 +110,9 @@ main.exportaFichero(p)
 	e.esFin = true;	
 //añado en el list de arraylist de programa todo
 	Programa programa =  new Programa();
-	programa.simbolos.add(b);
+	programa.Simbolo.add(b);
 	programa.definiciones=dc.definiciones;	
-	programa.simbolos.add(e);
+	programa.Simbolo.add(e);
 	programa.sentencias=s.sentencias;
 	programa.bloque.add(b); 
 	RESULT =programa; :} 
@@ -125,7 +124,7 @@ main.exportaFichero(p)
 	definicion.listaDefiniciones=dcl.listaDefiniciones;
 	definicion.listaDefiniciones.add(dc);
 	RESULT=definicion;
-	:} |VACIO|;
+	:}; //|VACIO|;
 	
 	SENTLIST ::= SENT:s {: 
 //Acumulacion de 1 elemento solo en un arraylist
@@ -163,7 +162,7 @@ main.exportaFichero(p)
 			cns.consatnte =cons;
 			cns.esConstante = true;
 			Definicion definicion= new Definicion();	
-			definicion.simbolos.add(cns);
+			definicion.Simbolo.add(cns);
 			definicion.declaracion.ctelista=ct.ctelista;
 			RESULT =definicion;  :} 
 	;
@@ -177,10 +176,9 @@ main.exportaFichero(p)
 			eq.esIgual=true;			
 			Simbolo ps= new Simbolo();
 			ps.puntocoma =p;
-			p.esPuntocoma=true;
+			ps.esPuntocoma=true;
 //añado todo a expresion
 			Declaraciones declaraciones= new Declaraciones();
-
 			declaraciones.simbolo.add(id);
 			declaraciones.simbolo.add(eq);
 			declaraciones.ctelista=s.ctelista;
@@ -197,7 +195,7 @@ main.exportaFichero(p)
 			eq.esIgual=true;			
 			Simbolo ps= new Simbolo();
 			ps.puntocoma =p;
-			p.esPuntocoma=true;
+			ps.esPuntocoma=true;
 //añado todo a expresion
 			Declaraciones declaraciones= new Declaraciones();
 // paso la lista entera 
@@ -213,20 +211,26 @@ main.exportaFichero(p)
 	SIMPVALUE ::= NUMERIC_INTEGER_CONST:ni {:
 			Simbolo nic= new Simbolo();
 			nic.numericoEnteroConstante =ni;
-			eq.esNumericoEnteroConstante=true;			
-	 		RESULT =nic :}
+			nic.esNumericoEnteroConstante=true;			
+	 		Declaraciones declaraciones= new Declaraciones();
+			declaraciones.add(nic);	
+			RESULT =declaraciones; :}
 	 		
 			| NUMERIC_REAL_CONST:nr {: 
 			Simbolo nrc= new Simbolo();
 			nrc.numericoRealConstante =e;
-			nrc.esNumericoRealConstante=true;			
-			RESULT =nrc :}
+			nrc.esNumericoRealConstante=true;	
+			Declaraciones declaraciones= new Declaraciones();
+			declaraciones.add(nrc);			
+			RESULT =declaraciones; :}
 			
 			| STRING_CONST:sc  {: 
 			Simbolo scons= new Simbolo();
 			scons.textoconstante =e;
-			scons.esTextoconstante=true;			
-			RESULT =scons :}
+			scons.esTextoconstante=true;
+			Declaraciones declaraciones= new Declaraciones();
+			declaraciones.addscons);					
+			RESULT =declaraciones; :}
 	;
 	
 	DEFVAR ::= VAR:v DEFVARLIST:d POINT_SEMICOLON:p  {: 
@@ -235,7 +239,7 @@ main.exportaFichero(p)
 			var.esVariable=true;			
 			Simbolo ps= new Simbolo();
 			ps.puntocoma =p;
-			p.esPuntocoma=true;
+			ps.esPuntocoma=true;
 //Agrupo todo en definicion		
 			Definicion definicion= new Definicion();
 			definicion.simbolo.add(v);
@@ -257,7 +261,7 @@ main.exportaFichero(p)
 //RVR PROBLEMA CONCATENAR CON LO ANTERIOR		
 			Simbolo ps= new Simbolo();
 			ps.puntocoma =p;
-			p.esPuntocoma=true;		
+			ps.esPuntocoma=true;		
 			Simbolo dbc= new Simbolo();
 			dbc.dosPuntos =d;
 			dbc.esDosPuntos=true;	

@@ -33,15 +33,12 @@ fin_comentario_multilinea="*)"
 
 	  {ini_comentario_multilinea}   
 	  { 
-	  System.out.print("@");
 	  	yybegin(COMENTARIO); 
 	  	commentCountMultilinea = commentCountMultilinea + 1; 
 	  }
 
    //terminales
-   	"program" {return symbol(sym.PRG);}
-	"funcion" {return symbol(sym.FUNCION);}
-	"procedure"	{return symbol(sym.PROCEDURE);}
+   	"program" {return symbol(sym.program);}
 	"begin" {return symbol(sym.BEGIN);}
 	"end" {return symbol(sym.END);}
 	"var" {return symbol(sym.VAR);}
@@ -61,29 +58,7 @@ fin_comentario_multilinea="*)"
 	"div" {return symbol(sym.DIV);}
 	"mod" {return symbol(sym.MOD);}
 	"void" {return symbol(sym.VOID);}
-	"int" {return symbol(sym.INT);}
-	"float" {return symbol(sym.FLOAT);}
-	"if" {return symbol(sym.IF);}
-	"then" {return symbol(sym.THEN);}
-	"else" {return symbol(sym.ELSE);}
-	"while" {return symbol(sym.WHILE);}
-	"do" {return symbol(sym.DO);}
-	"repat" {return symbol(sym.REPEAT);}
-	"util" {return symbol(sym.UTIL);}
-	"for" {return symbol(sym.FOR);}
-	"to" {return symbol(sym.TO);}
-	"downto" {return symbol(sym.DOWNTO);}
-	"or" {return symbol(sym.OR);}
-	"and" {return symbol(sym.AND);}
-	"not" {return symbol(sym.NOT);}	
-	"<" {System.out.println(return symbol(sym.GRETTER);}
-	">" {System.out.println(return symbol(sym.LESS);}
-	">=" {System.out.println(return symbol(sym.GRETTER_EQUAL);}
-	"<=" {System.out.println(return symbol(sym.LESS_EQUAL);}
-	"+=" {System.out.println(return symbol(sym.PLUS_EQUAL);}
-	"-=" {System.out.println(return symbol(sym.MINUS_EQUAL);}
-	"*=" {System.out.println(return symbol(sym.MULTIPLICACION_EQUAL);}
-	"/=" {System.out.println(return symbol(sym.DIV_EQUAL);}
+	
 	//tokens 
 	{identifier} {return symbol(sym.IDENTIFIER, new java.lang.String(yytext())); } 
 	{numeric_real_const}  {return symbol(sym.NUMERIC_REAL_CONST, new java.lang.String(yytext())); } 
@@ -91,7 +66,6 @@ fin_comentario_multilinea="*)"
 	{string_const} {return symbol(sym.STRING_CONST, new java.lang.String(yytext())); } 
 	{fin_comentario_multilinea} {return symbol(sym.END_COMENT, new java.lang.String(yytext())); }
 	{comentario_linea}  {return symbol(sym.ID, new java.lang.String(yytext())); } 
-	{salto} {return symbol(sym.JUMP, new java.lang.String(yytext())); } 
 	{espacio} {}
 	[^] {return symbol(sym.PROGRAM);}
 }
