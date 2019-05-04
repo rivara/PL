@@ -2,6 +2,7 @@ package analizador;
 
 public class Definicion {
 
+	public static final String Simbolo = null;
 	public Object definiciones;
 	public Object listaDefiniciones;
 	public Object defcte;
@@ -13,4 +14,10 @@ public class Definicion {
 	// definicion.declaracion.ctelista=ct.ctelista;
 	public Object simbolo;
 	public Object declaraciones;
+	public Object parametrosFormales;
+
+	public void add(analizador.Simbolo cp) {
+		// TODO Auto-generated method stub
+
+	}
 }

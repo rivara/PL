@@ -21,5 +21,11 @@ public class Simbolo {
 	public boolean esNumericoEnteroConstante;
 	public String variable;
 	public boolean esVariable;
+	public String abreParenteis;
+	public boolean esAbreParenteis;
+	public String cierraParentesis;
+	public boolean esCierraParentesis;
+	public String dosPuntos;
+	public boolean esDosPuntos;
 
 }

@@ -1,4 +1,4 @@
-	package practica.analyzer;
+	package analizador;
 //LIBRERIAS
 	import java_cup.runtime.*;
 	import java_cup.runtime.Symbol;
@@ -358,11 +358,11 @@ PRG ::= PROGRAM IDENTIFIER:id  BLQ:b  {:
 			cp.cierraParentesis =c;
 			cp.esCierraParentesis=true;	
 
-			Definicion definicion= new Definicion();
-			definicion.add(cp);	
-			definicion.parametrosFormales=f.parametrosFormales;
-			definicion.add(cp);	
-			RESULT =definicion;:} |VACIO|
+			Declaraciones declaraciones= new Declaraciones();
+			declaraciones.add(cp);	
+			declaraciones.parametrosFormales=f.parametrosFormales;
+			declaraciones.add(cp);	
+			RESULT =declaraciones;:} |VACIO|
 	;
 	
 	

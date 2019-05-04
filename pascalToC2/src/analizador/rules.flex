@@ -1,12 +1,15 @@
-package practica.analyzer;
+package analizador;
 import java_cup.runtime.*;
 %%
 %class rules
 %unicode
+%line
+%column
 %cup
 
 %{
 	private int commentCountMultilinea = 0;
+
 %}
 
 %state COMENTARIO
@@ -38,36 +41,35 @@ fin_comentario_multilinea="*)"
 	  }
 
    //terminales
-   	"program" {return symbol(sym.program);}
-	"begin" {return symbol(sym.BEGIN);}
-	"end" {return symbol(sym.END);}
-	"var" {return symbol(sym.VAR);}
-	"real" {return symbol(sym.REAL);}
-	"const" {return symbol(sym.CONST);}
-	"return" {return symbol(sym.RETURN);}
-	"(" {return symbol(sym.OPEN_PARENTESIS);}
-	")" {return symbol(sym.CLOSE_PARENTESIS);}
-	";" {return symbol(sym.POINT_SEMICOLON);}
-	"," {return symbol(sym.SEMICOLON);}
-	"=" {return symbol(sym.EQUAL);}
-	"+" {return symbol(sym.PLUS);}
-	"-" {return symbol(sym.MINUS);}
-	"*" {return symbol(sym.MULTIPLICACION);}
-	":" {return symbol(sym.DOUBLE_COLON);}
-	":=" {return symbol(sym.DOUBLE_COLON_EQUAL);}
-	"div" {return symbol(sym.DIV);}
-	"mod" {return symbol(sym.MOD);}
-	"void" {return symbol(sym.VOID);}
+  
+   	"program" {return new Symbol(sym.PROGRAM);}
+	"begin" {return new Symbol(sym.BEGIN);}
+	"end" {return new Symbol(sym.END);}
+	"var" {return new Symbol(sym.VAR);}
+	"const" {return new Symbol(sym.CONST);}
+	"(" {return new Symbol(sym.OPEN_PARENTESIS);}
+	")" {return new Symbol(sym.CLOSE_PARENTESIS);}
+	";" {return new Symbol(sym.POINT_SEMICOLON);}
+	"," {return new Symbol(sym.SEMICOLON);}
+	"=" {return new Symbol(sym.EQUAL);}
+	"+" {return new Symbol(sym.PLUS);}
+	"-" {return new Symbol(sym.MINUS);}
+	"*" {return new Symbol(sym.MULTIPLICACION);}
+	":" {return new Symbol(sym.DOUBLE_COLON);}
+	":=" {return new Symbol(sym.DOUBLE_COLON_EQUAL);}
+	"div" {return new Symbol(sym.DIV);}
+	"mod" {return new Symbol(sym.MOD);}
 	
 	//tokens 
-	{identifier} {return symbol(sym.IDENTIFIER, new java.lang.String(yytext())); } 
-	{numeric_real_const}  {return symbol(sym.NUMERIC_REAL_CONST, new java.lang.String(yytext())); } 
-	{numeric_integer_const}  {return symbol(sym.NUMERIC_INTEGER_CONST, new java.lang.String(yytext())); } 
-	{string_const} {return symbol(sym.STRING_CONST, new java.lang.String(yytext())); } 
-	{fin_comentario_multilinea} {return symbol(sym.END_COMENT, new java.lang.String(yytext())); }
-	{comentario_linea}  {return symbol(sym.ID, new java.lang.String(yytext())); } 
+	{identifier} {return new Symbol(sym.IDENTIFIER, new String(yytext())); } 
+	{numeric_real_const}  {return new Symbol(sym.NUMERIC_REAL_CONST, new String(yytext())); } 
+	{numeric_integer_const}  {return new Symbol(sym.NUMERIC_INTEGER_CONST, new String(yytext())); } 
+	{string_const} {return new Symbol(sym.STRING_CONST, new String(yytext())); } 
+	{fin_comentario_multilinea} {return new Symbol(sym.END_COMENT, new String(yytext())); }
+	{comentario_linea}  {return new Symbol(sym.IDENTIFIER, new String(yytext())); } 
 	{espacio} {}
-	[^] {return symbol(sym.PROGRAM);}
+	//
+	[^] {return new Symbol(sym.PROGRAM);}
 }
 
 
