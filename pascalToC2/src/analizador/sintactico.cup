@@ -4,7 +4,6 @@
 	import java_cup.runtime.Symbol;
 	import java.io.FileOutputStream;
 	import java.io.IOException;
-	import practica.objetos.*;
 //CONTROL DE ERRORESZ 
 	parser code {:
 
@@ -61,14 +60,14 @@ public void unrecovered_syntax_error(Symbol s){
 // metodo recorrer y expulsarlo en el fichero  
 	non terminal Programa PRG,BLQ;
 	//primer nivel
-	non terminal Sentencia SENTLIST,SENT;
+	non terminal Sentencia SENT,ASIG,EXP,FACTOR,PROC_CALL,FORMAL_PARAM;
 	//PROC_CALL;
-	non terminal Definicion DCLLIST,DCL,DEFCTE, DEFVAR,DEFPROC,DEFFUN;
+	non terminal Definicion DCL,DEFCTE, DEFVAR,DEFPROC,DEFFUN;
 	//segundo nivel
-	non terminal Declaraciones CTELIST,SIMPVALUE,DEFVARLIST,VARLIST,FORMAL_PARAMLIST,FORMAL_PARAM;
-	non terminal Expresion ASIG,EXP,FACTOR,SUBPARAMLIST,EXPLIST,PROC_CALL;
+    non terminal Lista CTELIST,DEFVARLIST,VARLIST,FORMAL_PARAMLIST,SUBPARAMLIST,EXPLIST,DCLLIST,SENTLIST;
+	
 	 // ultimo nivel + TERMINALES 
-	non terminal Simbolo  TBAS,OP,OPARIT,ID;
+	non terminal Simbolo  TBAS,OP,OPARIT,ID,SIMPVALUE;
 	
 	
 	
@@ -85,154 +84,129 @@ public void unrecovered_syntax_error(Symbol s){
 PRG ::= PROGRAM IDENTIFIER:id  BLQ:b  {: 
 	//eporta todos los arraylist a un fichero de texto llamado Programa.c
 	//main.exportaFichero(p)
-//simbolo 
-	Simbolo s= new Simbolo();
-	s.program ="Program";
-	s.esProgram = true;		
-//identificador 
-	s.identificador =id;
-	s.esIdentificador = true;
+
 	Programa programa =  new Programa();
-	programa.simbolo.add(s)
+	programa.identificador=id;
+	programa.program="programa";
+	programa.esProgram=true;
     programa.bloque =b.bloque;
 	RESULT =programa; :} 
 	;
 	
-	BLQ ::= DCLLIST:dc BEGIN SENTLIST:s END{:
-//añado dclista
-//simbolo 
-	Simbolo b= new Simbolo();
-	b.empieza ="begin";
-	b.esEmpieza = true;		
-
-	Simbolo e= new Simbolo();
-	e.fin ="end";
-	e.esFin = true;	
-//añado en el list de arraylist de programa todo
-	Programa programa =  new Programa();
-	programa.Simbolo.add(b);
-	programa.definiciones=dc.definiciones;	
-	programa.Simbolo.add(e);
-	programa.sentencias=s.sentencias;
-	programa.bloque.add(b); 
-	RESULT =programa; :} 
+	BLQ ::= DCLLIST:dc BEGIN SENTLIST:sl END{:
+	Programa bloque =  new Programa();
+	Lista dclLista;
+	Lista sentLista;
+	bloque.dclLista=dc.dclLista;	
+	bloque.empieza ="begin";
+	bloque.esEmpieza = true;	
+	bloque.sentLista=sl.sentLista;
+	bloque.fin ="end";
+	bloque.esFin = true;
+	RESULT =bloque; :} 
 	;
 		
-	DCLLIST ::=  DCLLIST:dcl DCL:dc {: RESULT = 
-//Acumulacion de todos los dcl de la llamada recursiva
-	Definicion definicion= new Definicion();
-	definicion.listaDefiniciones=dcl.listaDefiniciones;
-	definicion.listaDefiniciones.add(dc);
-	RESULT=definicion;
-	:}; //|VACIO|;
+	DCLLIST ::=  DCLLIST:dcl DCL:dc {: 
+	Lista dclLista;
+	dclLista=dcl;
+	dclLista.dclLista.add(dc);
+	RESULT=dclLista;
+	:} |VACIO|;
 	
 	SENTLIST ::= SENT:s {: 
 //Acumulacion de 1 elemento solo en un arraylist
-	Sentencia sentencia= new Sentencia();
-	sentancia.sentlista.add(s);
-	RESULT =sentancia; :} 
+	Lista sentLista;
+	sentLista.sentLista.add(s);
+	RESULT =sentLista; :} 
 	
 	|SENTLIST:sl SENT:s {: 
 //Acumulacion de todos los dcl de la llamada recursiva
-	Sentencia sentencia= new Sentencia();
-	sentencia.listaSentencias=sl.listaSentencias;
-	sentencia.listaSentencias.add(s);
-	RESULT = sentencia; :} 
+	Lista sentLista;
+	sentLista=sl;
+	sentLista.sentLista.add(s);
+	RESULT=sentLista;
+ :} 
 	;
 	DCL ::=DEFCTE:d {: 
-		   	Definicion definicion= new Definicion();
-			definicion.defcte=d.defcte;
-			RESULT =definicion; :}  
+		   	Definicion defcte;
+			defcte=d;
+			RESULT =defcte; :}  
 		|DEFVAR:dv {:
-	 		Definicion definicion= new Definicion();
-			definicion.defvar=dv.defvar;
-			RESULT = definicion; :} 
+	 		Definicion defvar;
+			defvar=dv;
+			RESULT = defvar; :} 
 		| DEFPROC:dp{: 
-			Definicion definicion= new Definicion();
-			definicion.defproc=dp.defproc;
-			RESULT =definicion; :} 
+			Definicion defproc;
+			defproc=dp;
+			RESULT =defproc; :} 
 		| DEFFUN:df{: 
-			Definicion definicion= new Definicion();
-			definicion.deffun=df.deffun;
-			RESULT =definicion; :} 
+			Definicion deffun;
+			deffun=df;
+			RESULT =deffun; :} 
 	;	
 	
 	DEFCTE ::=CONST:cons CTELIST:ct {: 
-			Simbolo cns= new Simbolo();
-			cns.consatnte =cons;
-			cns.esConstante = true;
-			Definicion definicion= new Definicion();	
-			definicion.Simbolo.add(cns);
-			definicion.declaracion.ctelista=ct.ctelista;
-			RESULT =definicion;  :} 
+			Definicion defcte;
+			defcte.constante =cons;
+			defcte.esConstante = true;	
+			Lista cteLista;
+			defcte.cteLista=ct.cteLista;
+			RESULT =defcte;  :} 
 	;
 	
+
+
 	CTELIST ::= IDENTIFIER:i EQUAL:e SIMPVALUE:s POINT_SEMICOLON:p{: 
-			Simbolo id= new Simbolo();
-			id.identificador =i;
-			id.esIdenoicador=true;
-			Simbolo eq= new Simbolo();
-			eq.igual =e;
-			eq.esIgual=true;			
-			Simbolo ps= new Simbolo();
-			ps.puntocoma =p;
-			ps.esPuntocoma=true;
-//añado todo a expresion
-			Declaraciones declaraciones= new Declaraciones();
-			declaraciones.simbolo.add(id);
-			declaraciones.simbolo.add(eq);
-			declaraciones.ctelista=s.ctelista;
-			declaraciones.simbolo.add(ps);
-			RESULT =declaraciones; :} 
+			//ctelist
+			Lista ctelist;
+			ctelist.identificador =i;
+			ctelist.esIdenoicador=true;
+			ctelist.igual =e;
+			ctelist.esIgual=true;			
+			ctelist.puntocoma =p;
+			ctelist.esPuntocoma=true;
+			RESULT =ctelist; :} 
 
 
 	|CTELIST:cl IDENTIFIER:i EQUAL:e SIMPVALUE:s  POINT_SEMICOLON:p{: 
-	Simbolo id= new Simbolo();
-			id.identificador =i;
-			id.esIdenoicador=true;
-			Simbolo eq= new Simbolo();
-			eq.igual =e;
-			eq.esIgual=true;			
-			Simbolo ps= new Simbolo();
-			ps.puntocoma =p;
-			ps.esPuntocoma=true;
-//añado todo a expresion
-			Declaraciones declaraciones= new Declaraciones();
-// paso la lista entera 
-//RVR PROBLEMA CONCATENAR CON LO ANTERIOR				
-			declaraciones.listaSentencias.addAll(cl);
-			declaraciones.simbolo.add(id);
-			declaraciones.simbolo.add(eq);
-			declaraciones.ctelista=s.ctelista;
-			declaraciones.simbolo.add(ps);
-			RESULT =declaraciones; :} 
+//RVR -- duda
+				Lista ctelist;
+				ctelist.identificador = i;
+				ctelist.esIdenoicador = true;
+				ctelist.igual = e;
+				ctelist.esIgual = true;
+				ctelist.puntocoma = p;
+				ctelist.esPuntocoma = true;		
+				//cl.cteLista.addAll(ctelist);
+				cl.cteLista.addAll(cl.cteLista.size() + 1, (Collection<? extends Sentencia>) ctelist);
+				RESULT =cl; :} 
 	;
-	
+		//non terminal Declaraciones CTELIST,SIMPVALUE,DEFVARLIST,VARLIST,FORMAL_PARAMLIST,FORMAL_PARAM;
 	SIMPVALUE ::= NUMERIC_INTEGER_CONST:ni {:
-			Simbolo nic= new Simbolo();
-			nic.numericoEnteroConstante =ni;
-			nic.esNumericoEnteroConstante=true;			
-	 		Declaraciones declaraciones= new Declaraciones();
-			declaraciones.add(nic);	
-			RESULT =declaraciones; :}
+			Simbolo integer= new Simbolo();
+			integer.numericoEnteroConstante =ni;
+			integer.esNumericoEnteroConstante=true;			
+			RESULT =integer; :}
 	 		
 			| NUMERIC_REAL_CONST:nr {: 
-			Simbolo nrc= new Simbolo();
-			nrc.numericoRealConstante =e;
-			nrc.esNumericoRealConstante=true;	
-			Declaraciones declaraciones= new Declaraciones();
-			declaraciones.add(nrc);			
-			RESULT =declaraciones; :}
+			Simbolo real= new Simbolo();
+			real.numericoRealConstante =e;
+			real.esNumericoRealConstante=true;	
+			RESULT =real; :}
 			
 			| STRING_CONST:sc  {: 
-			Simbolo scons= new Simbolo();
-			scons.textoconstante =e;
-			scons.esTextoconstante=true;
-			Declaraciones declaraciones= new Declaraciones();
-			declaraciones.addscons);					
-			RESULT =declaraciones; :}
+			Simbolo constante= new Simbolo();
+			constante.textoconstante =e;
+			constante.esTextoconstante=true;	
+			RESULT =constante; :}
 	;
 	
+	
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////AQUI
+////////////////////////////////////////////////////////////////////
+
+
 	DEFVAR ::= VAR:v DEFVARLIST:d POINT_SEMICOLON:p  {: 
 			Simbolo var= new Simbolo();
 			var.variable =v;
