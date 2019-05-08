@@ -1,5 +1,5 @@
 package analizador;
 
-public interface Sentencia {
+public class Sentencia {
 
 }

@@ -56,7 +56,6 @@ fin_comentario_multilinea="*)"
 	"-" {return new Symbol(sym.MINUS);}
 	"*" {return new Symbol(sym.MULTIPLICACION);}
 	":" {return new Symbol(sym.DOUBLE_COLON);}
-	":=" {return new Symbol(sym.DOUBLE_COLON_EQUAL);}
 	"div" {return new Symbol(sym.DIV);}
 	"mod" {return new Symbol(sym.MOD);}
 	

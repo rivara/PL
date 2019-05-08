@@ -22,7 +22,7 @@ public void unrecovered_syntax_error(Symbol s){
 // ver porque hector tiene algunos terminales definidos como String
 	terminal String PROGRAM,FUNCTION,PROCEDURE, BEGIN,END,VAR,OPEN_PARENTESIS,CLOSE_PARENTESIS,POINT_SEMICOLON,
 	 SEMICOLON,EQUAL,DOUBLE_COLON,CONST,IDENTIFIER,NUMERIC_REAL_CONST,
-	 NUMERIC_INTEGER_CONST,STRING_CONST,VACIO,MOD,MULTIPLICACION,PLUS,DIV,MINUS;
+	 NUMERIC_INTEGER_CONST,STRING_CONST,VACIO,MOD,MULTIPLICACION,PLUS,DIV,MINUS,END_COMENT;
 	 
 	 //MOD , MULTIPLICACION , PLUS ,DIV,MINUS,REAL
 // terminal DOUBLE_COLON_EQUAL;
@@ -59,20 +59,14 @@ public void unrecovered_syntax_error(Symbol s){
 // metodo list de arraylist 
 // metodo recorrer y expulsarlo en el fichero  
 	non terminal Programa PRG,BLQ;
-	//primer nivel
-	non terminal Sentencia SENT,ASIG,EXP,FACTOR,PROC_CALL,FORMAL_PARAM;
-	//PROC_CALL;
-	non terminal Definicion DCL,DEFCTE, DEFVAR,DEFPROC,DEFFUN;
-	//segundo nivel
-    non terminal Lista CTELIST,DEFVARLIST,VARLIST,FORMAL_PARAMLIST,SUBPARAMLIST,EXPLIST,DCLLIST,SENTLIST;
-	
-	 // ultimo nivel + TERMINALES 
+	non terminal Sentencia SENTLIST,SENT,ASIG,EXP,FACTOR,SUBPARAMLIST,EXPLIST,PROC_CALL;
+	non terminal Funcion DCLLIST,DCL,DEFCTE,CTELIST, DEFVAR,DEFVARLIST,VARLIST,DEFPROC,DEFFUN,FORMAL_PARAMLIST,FORMAL_PARAM;
 	non terminal Simbolo  TBAS,OP,OPARIT,ID,SIMPVALUE;
 	
+
 	
 	
-	
-	
+
 	
 	
 /*ORDENAMIENTO (rompe ambigüedad de jerarquia)*/
@@ -84,69 +78,72 @@ public void unrecovered_syntax_error(Symbol s){
 PRG ::= PROGRAM IDENTIFIER:id  BLQ:b  {: 
 	//eporta todos los arraylist a un fichero de texto llamado Programa.c
 	//main.exportaFichero(p)
-
-	Programa programa =  new Programa();
-	programa.identificador=id;
-	programa.program="programa";
-	programa.esProgram=true;
-    programa.bloque =b.bloque;
-	RESULT =programa; :} 
+	Programa bloque = new Programa();
+	bloque.empieza = "begin";
+	bloque.esEmpieza = true;
+	bloque.fin = "end";
+	bloque.esFin = true;
+	RESULT = bloque;:} 
 	;
-	
+
 	BLQ ::= DCLLIST:dc BEGIN SENTLIST:sl END{:
-	Programa bloque =  new Programa();
-	Lista dclLista;
-	Lista sentLista;
-	bloque.dclLista=dc.dclLista;	
+	Programa bloque = new Programa();
+	bloque.dclLista.add(dc);	
 	bloque.empieza ="begin";
 	bloque.esEmpieza = true;	
-	bloque.sentLista=sl.sentLista;
+	bloque.sentLista.add(sl);
 	bloque.fin ="end";
 	bloque.esFin = true;
 	RESULT =bloque; :} 
 	;
-		
+	
+	
+	
+	
 	DCLLIST ::=  DCLLIST:dcl DCL:dc {: 
-	Lista dclLista;
-	dclLista=dcl;
-	dclLista.dclLista.add(dc);
-	RESULT=dclLista;
+	Programa p=new Programa();
+	Funcion function = new Funcion();
+	function.dclLista.add(dc);
+	p.dclLista.addAll(dcl.dclLista);
+	//p.declaraciones.add(sentencia);
+	//p.declaraciones.addAll(listaDef.declaraciones);
+	RESULT = function;
 	:} |VACIO|;
 	
 	SENTLIST ::= SENT:s {: 
 //Acumulacion de 1 elemento solo en un arraylist
-	Lista sentLista;
-	sentLista.sentLista.add(s);
-	RESULT =sentLista; :} 
+	Programa sentlist;
+	sentlist.add(s);
+	RESULT =sentlist; :} 
 	
 	|SENTLIST:sl SENT:s {: 
 //Acumulacion de todos los dcl de la llamada recursiva
-	Lista sentLista;
-	sentLista=sl;
-	sentLista.sentLista.add(s);
+	Sentencia sentencia= new Sentencia();
+	sentencia=sl;
+	sentencia.add(s);
 	RESULT=sentLista;
  :} 
 	;
 	DCL ::=DEFCTE:d {: 
-		   	Definicion defcte;
+		   	Funcion defcte=new Funcion();;
 			defcte=d;
 			RESULT =defcte; :}  
 		|DEFVAR:dv {:
-	 		Definicion defvar;
+	 		Funcion defvar=new Funcion();;
 			defvar=dv;
 			RESULT = defvar; :} 
 		| DEFPROC:dp{: 
-			Definicion defproc;
+			Funcion defproc=new Funcion();;
 			defproc=dp;
 			RESULT =defproc; :} 
 		| DEFFUN:df{: 
-			Definicion deffun;
+			Funcion defvar=new Funcion();;
 			deffun=df;
 			RESULT =deffun; :} 
 	;	
 	
 	DEFCTE ::=CONST:cons CTELIST:ct {: 
-			Definicion defcte;
+			Funcion defcte=new Funcion();;
 			defcte.constante =cons;
 			defcte.esConstante = true;	
 			Lista cteLista;
@@ -158,7 +155,7 @@ PRG ::= PROGRAM IDENTIFIER:id  BLQ:b  {:
 
 	CTELIST ::= IDENTIFIER:i EQUAL:e SIMPVALUE:s POINT_SEMICOLON:p{: 
 			//ctelist
-			Lista ctelist;
+			Funcion ctelist=new Funcion();;
 			ctelist.identificador =i;
 			ctelist.esIdenoicador=true;
 			ctelist.igual =e;
@@ -169,16 +166,20 @@ PRG ::= PROGRAM IDENTIFIER:id  BLQ:b  {:
 
 
 	|CTELIST:cl IDENTIFIER:i EQUAL:e SIMPVALUE:s  POINT_SEMICOLON:p{: 
-//RVR -- duda
-				Lista ctelist;
+				Programa p = new Programa();
+				Funcion ctelist = new Funcion();
 				ctelist.identificador = i;
 				ctelist.esIdenoicador = true;
 				ctelist.igual = e;
 				ctelist.esIgual = true;
 				ctelist.puntocoma = p;
-				ctelist.esPuntocoma = true;		
-				//cl.cteLista.addAll(ctelist);
-				cl.cteLista.addAll(cl.cteLista.size() + 1, (Collection<? extends Sentencia>) ctelist);
+				ctelist.esPuntocoma = true;
+				ctelist.all();
+				//añadair 
+				p.ctelist.addAll(c1);
+			//p.declaraciones.add(sentencia);
+	//p.declaraciones.addAll(listaDef.declaraciones);
+			
 				RESULT =cl; :} 
 	;
 		//non terminal Declaraciones CTELIST,SIMPVALUE,DEFVARLIST,VARLIST,FORMAL_PARAMLIST,FORMAL_PARAM;
@@ -201,11 +202,6 @@ PRG ::= PROGRAM IDENTIFIER:id  BLQ:b  {:
 			RESULT =constante; :}
 	;
 	
-	
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////AQUI
-////////////////////////////////////////////////////////////////////
-
 
 	DEFVAR ::= VAR:v DEFVARLIST:d POINT_SEMICOLON:p  {: 
 			Simbolo var= new Simbolo();

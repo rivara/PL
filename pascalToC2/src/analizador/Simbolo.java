@@ -1,6 +1,6 @@
 package analizador;
 
-interface Simbolo {
+public class Simbolo {
 	public String program = "";
 	public boolean esProgram = false;
 	public String identificador = "";
