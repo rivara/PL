@@ -2,9 +2,17 @@ package analizador;
 
 import java.util.ArrayList;
 
-public class Funcion {
+public class Funcion extends Simbolo {
 
-	// public ArrayList<Object> dclLista;
 	public ArrayList<Funcion> dclLista;
-	public ArrayList<Sentencia> sentLista;
+	public String constante;
+	public boolean esConstante;
+	//
+	public ArrayList<SubFuncion> cteLista;
+	public ArrayList<SubFuncion> defvarLista;
+	public ArrayList<SubFuncion> varLista;
+	public ArrayList<SubFuncion> formal_param;
+
+	// ?
+
 }

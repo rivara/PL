@@ -29,5 +29,7 @@ public class Simbolo {
 	public Object textoconstante = "";
 	public boolean esTextoconstante = false;
 	public String funcion = "";
+	public String numericoRealConstante;
+	public boolean esNumericoRealConstante;
 
 }
