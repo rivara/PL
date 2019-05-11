@@ -1,5 +1,7 @@
 package analizador;
 
+import java.util.ArrayList;
+
 public class Simbolo {
 	public String program = "";
 	public boolean esProgram = false;
@@ -25,11 +27,36 @@ public class Simbolo {
 	public String cierraParentesis = "";
 	public boolean esCierraParentesis = false;
 	public String dosPuntos = "";
-	public boolean esDosPuntosfalse = false;
+	public boolean esDosPuntos = false;
 	public Object textoconstante = "";
 	public boolean esTextoconstante = false;
 	public String funcion = "";
+	public boolean esFuncion = false;
 	public String numericoRealConstante;
 	public boolean esNumericoRealConstante;
-
+	public String real;
+	public boolean esReal = false;
+	public String coma = "";
+	public boolean esComa = false;
+	public String procedimiento = "";
+	public boolean esProcedimiento = false;
+	public ArrayList<Simbolo> varLista;
+	public ArrayList<Simbolo> tbas;
+	public ArrayList<Simbolo> simpvalue;
+	public ArrayList<Simbolo> devarlista;
+	public ArrayList<Simbolo> proc_call;
+	public ArrayList<Simbolo> asig;
+	public ArrayList<Simbolo> subparamLista;
+	public ArrayList<Simbolo> op;
+	public ArrayList<Simbolo> exp;
+	public String mas = "";
+	public boolean esMas = false;
+	public String menos = "";
+	public boolean esMenos = false;
+	public String multiplica = "";
+	public boolean esMultiplica = false;
+	public String divide = "";
+	public boolean esDivide = false;
+	public String mod = "";
+	public boolean esMod = false;
 }

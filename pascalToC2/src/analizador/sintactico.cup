@@ -59,11 +59,12 @@ public void unrecovered_syntax_error(Symbol s){
 // metodo list de arraylist 
 // metodo recorrer y expulsarlo en el fichero  
 	non terminal Programa PRG,BLQ;
-	non terminal Sentencia SENTLIST,SENT,ASIG,EXP,FACTOR,SUBPARAMLIST,EXPLIST,PROC_CALL;
+	non terminal Sentencia SENTLIST,SENT,ASIG,SUBPARAMLIST,PROC_CALL;
 	// requieren arraylist
 	non terminal Funcion DCLLIST,DCL,DEFCTE,DEFVAR,DEFPROC,DEFFUN,FORMAL_PARAMLIST;
+	non terminal SubSentencia FACTOR,EXPLIST;
 	non terminal SubFuncion CTELIST,DEFVARLIST,VARLIST,FORMAL_PARAM;
-	non terminal Simbolo  TBAS,OP,OPARIT,ID,SIMPVALUE;
+	non terminal Simbolo  OP,TBAS,OPARIT,ID,SIMPVALUE,EXP;
 	
 
 	
@@ -85,6 +86,7 @@ PRG ::= PROGRAM IDENTIFIER:id  BLQ:b  {:
 	programa.esEmpieza = true;
 	programa.fin = "end";
 	programa.esFin = true;
+	programa.imprimir().toString();
 	RESULT = programa;:} 
 	;
 
@@ -147,7 +149,7 @@ BLQ ::= DCLLIST:dc BEGIN SENTLIST:sl END{:
 			SubFuncion subfuncion =new SubFuncion();
 			defcte.constante = cons;
 			defcte.esConstante = true;
-			subfuncion.cteLista=ct:
+			subfuncion.cteLista=ct.cteLista;
 			RESULT = defcte; :} 
 	;
 	
@@ -155,28 +157,29 @@ BLQ ::= DCLLIST:dc BEGIN SENTLIST:sl END{:
 	CTELIST ::= IDENTIFIER:i EQUAL:e SIMPVALUE:s POINT_SEMICOLON:ps{: 
 				Funcion funcion = new Funcion();
 				SubFuncion subfuncion = new SubFuncion();
-				subfuncion.identificador = i;
-				subfuncion.esIdenoicador = true;
-				subfuncion.igual = e;
-				subfuncion.esIgual = true;
-				subfuncion.simboloArray.add(s);
-				subfuncion.puntocoma = ps;
-				subfuncion.esPuntocoma = true;
-				funcion.cteLista.add(subfuncion);
+				Simbolo simbolo= new Simbolo();
+				simbolo.identificador = i;
+				simbolo.esIdenoicador = true;
+				simbolo.igual = e;
+				simbolo.esIgual = true;
+				simbolo.simpvalue = s.simpvalue;
+				simbolo.puntocoma = ps;
+				simbolo.esPuntocoma = true;
+				subfuncion.cteLista.add(simbolo);
 				RESULT = subfuncion;  :} 
 	|CTELIST:cl IDENTIFIER:i EQUAL:e SIMPVALUE:s  POINT_SEMICOLON:ps{: 
 				Funcion funcion = new Funcion();
 				SubFuncion subfuncion = new SubFuncion();
-				subfuncion.identificador = i;
-				subfuncion.esIdenoicador = true;
-				subfuncion.igual = e;
-				subfuncion.esIgual = true;
-				subfuncion.simboloArray.add(s);
-				subfuncion.puntocoma = ps;
-				subfuncion.esPuntocoma = true;
-				funcion.cteLista.add(subfuncion);
-				funcion.cteLista.addAll(cl.cteLista);;
-				Program p = new Program();
+				Simbolo simbolo= new Simbolo();
+				simbolo.identificador = i;
+				simbolo.esIdenoicador = true;
+				simbolo.igual = e;
+				simbolo.esIgual = true;
+				simbolo.simpvalue = s.simpvalue;
+				simbolo.puntocoma = ps;
+				simbolo.esPuntocoma = true;
+				subfuncion.cteLista.add(simbolo);
+				subfuncion.cteLista.addAll(cl.cteLista);
 				RESULT = subfuncion; :} 
 	;
 	
@@ -205,11 +208,12 @@ BLQ ::= DCLLIST:dc BEGIN SENTLIST:sl END{:
 //ASIGNA
 	DEFVAR ::= VAR:v DEFVARLIST:d POINT_SEMICOLON:p  {: 
 			Funcion funcion = new Funcion();
-			funcion.variable =v;
-			funcion.esVariable=true;
-			funcion.defvarLista=d;
-			funcion.puntocoma =p;
-			funcion.esPuntocoma=true;
+			Simbolo simbolo = new Simbolo();
+			simbolo.variable = v;
+			simbolo.esVariable = true;
+			simbolo.devarlista = d.devarlista;
+			simbolo.puntocoma = p;
+			simbolo.esPuntocoma = true;
 			RESULT =funcion;  :} 
 	;
 	
@@ -217,158 +221,134 @@ BLQ ::= DCLLIST:dc BEGIN SENTLIST:sl END{:
 	
 ////////////////// AGREGA	
 	DEFVARLIST ::= VARLIST:v DOUBLE_COLON:d TBAS:t  {:
-			Funcion funcion = new Funcion();
 			SubFuncion subfuncion = new SubFuncion();
-			subfuncion.puntocoma = i;
-			subfuncion.esPuntocoma = true;
-			subfuncion.simboloArray.add(v);
-			subfuncion.dosPuntos = ps;
-			subfuncion.esDosPuntos = true;
-			subfuncion.simboloArray.add(t);
-			funcion.cteLista.add(subfuncion);
-			RESULT = funcion; :}	
+			Simbolo simbolo = new Simbolo();
+			simbolo.varLista=v.varLista;
+			simbolo.dosPuntos = d;
+			simbolo.esDosPuntos =true;
+			simbolo.tbas=t.tbas;
+			subfuncion.defvarLista.add(simbolo);
+			RESULT = subfuncion;  :}	
 	| DEFVARLIST:dl POINT_SEMICOLON:p VARLIST:v DOUBLE_COLON:d TBAS:t  {:
-			Funcion funcion = new Funcion();
 			SubFuncion subfuncion = new SubFuncion();
-			subfuncion.puntocoma = i;
-			subfuncion.esPuntocoma = true;
-			subfuncion.simboloArray.add(v);
-			subfuncion.dosPuntos = ps;
-			subfuncion.esDosPuntos = true;
-			subfuncion.simboloArray.add(t);
-			funcion.cteLista.add(subfuncion);
-			funcion.defvarLista.addAll(dl.defvarLista);
+			Simbolo simbolo = new Simbolo();
+			simbolo.puntocoma = p;
+			simbolo.esPuntocoma = true;
+			simbolo.varLista=v.varLista;
+			simbolo.dosPuntos = d;
+			simbolo.esDosPuntos =true;
+			subfuncion.defvarLista.add(simbolo);
+			subfuncion.defvarLista.addAll(dl.defvarLista);
+			subfuncion.cteLista.add(subfuncion);
+			subfuncion.defvarLista.addAll(dl.defvarLista);
 			RESULT = subfuncion; :} 
 			;
-	
-//aQUI	
+
+
 ////////////////// AGREGA
 	VARLIST ::= IDENTIFIER:i  {: 
-			Simbolo id= new Simbolo();
-			id.identificador =i;
-			id.esIdentificador=true;
-			Definicion definicion= new Definicion();
-			definicion.add(id);		
-       		RESULT =id; :}
-	| IDENTIFIER:i  SEMICOLON:s VARLIST:v  {: 
-			Simbolo id= new Simbolo();	
-			id.identificador =i;
-			id.esIdentificador=true;	
-			Simbolo sc= new Simbolo();	
-			sc.coma =s;
-			sc.esComa=true;
-			Definicion definicion= new Definicion();
-			definicion.add(id);	
-			definicion.add(sc);	
-			definicion.varLista=v.varLista;
-       		RESULT =definicion; :}
+			SubFuncion subfuncion = new SubFuncion();
+			Simbolo simbolo= new Simbolo();	
+			simbolo.identificador =i;
+			simbolo.esIdentificador=true;
+			subfuncion.varLista.add(simbolo);		
+       		RESULT =subfuncion; :}
+	| IDENTIFIER:i  SEMICOLON:s VARLIST:v  {:
+			SubFuncion subfuncion = new SubFuncion();
+			Simbolo simbolo = new Simbolo();
+			simbolo.identificador = i;
+			simbolo.esIdentificador = true;
+			simbolo.coma = s;
+			simbolo.esComa = true;
+			subfuncion.varLista.add(simbolo);
+			subfuncion.varLista.addAll(v.varLista);
+       		RESULT =subfuncion; :}
 	;
 	
-////////////////// AGREGA
+////////////////// ASIGNA
 	DEFPROC ::= PROCEDURE:p IDENTIFIER:i FORMAL_PARAMLIST:fo POINT_SEMICOLON:ps1 BLQ:b POINT_SEMICOLON:ps2{:
-  			Simbolo pro= new Simbolo();	
-			pro.procedimiento =p;
-			pro.esProcedimiento=true;
-			Simbolo id= new Simbolo();	
-			id.identificador =i;
-			id.esIdentificador=true;	
-			Simbolo pos1= new Simbolo();
-			pos1.puntocoma =ps1;
-			pos1.esPuntocoma=true;
-			Simbolo pos2= new Simbolo();
-			pos2.puntocoma =ps2;
-			pos2.esPuntocoma=true;
-			
-			Definicion definicion= new Definicion();
-			definicion.add(pro);	
-			definicion.add(id);	
-			definicion.formal_paramLista=fo.formal_paramLista;
-			definicion.add(pos1);	
-			definicion.bloque=b.bloque;
-			definicion.add(pos2);
-			RESULT =definicion;:} 
+  			Funcion funcion = new Funcion();
+			funcion.procedimiento = p;
+			funcion.esProcedimiento = true;
+			funcion.identificador = i;
+			funcion.esIdentificador = true;
+			funcion.formal_paramLista = fo.formal_paramLista;
+			funcion.puntocoma = ps1;
+			funcion.esPuntocoma = true;
+			Programa bloque = new Programa();
+			bloque = b;
+			funcion.puntocoma = ps2;
+			funcion.esPuntocoma = true;
+			RESULT = funcion;:} 
 	;
 	
 	////////////////// ASIGNA
 	DEFFUN ::= FUNCTION:f IDENTIFIER:i FORMAL_PARAMLIST:fo DOUBLE_COLON:d TBAS:t POINT_SEMICOLON:p1 BLQ:b POINT_SEMICOLON:p2{: 
-	  		Simbolo fun= new Simbolo();	
-			fun.funcion =f;
-			fun.esFuncion=true;
-			Simbolo id= new Simbolo();	
-			id.identificador =i;
-			id.esIdentificador=true;
-			Simbolo dbc= new Simbolo();
-			dbc.dosPuntos =d;
-			dbc.esDosPuntos=true;	
-			Simbolo pos1= new Simbolo();
-			pos1.puntocoma =p1;
-			pos1.esPuntocoma=true;
-			Simbolo pos2= new Simbolo();
-			pos2.puntocoma =p2;
-			pos2.esPuntocoma=true;
-//////////////////////////////
-			Definicion definicion= new Definicion();
-			definicion.add(fun);	
-			definicion.add(id);	
-			definicion.formal_paramLista=fo.formal_paramLista;
-			definicion.tbas=t.tbas;
-			definicion.bloque=b.bloque;
-			RESULT =definicion; :} 
+	  		Funcion funcion = new Funcion();
+			funcion.funcion = f;
+			funcion.esFuncion = true;
+			funcion.identificador = i;
+			funcion.esIdentificador = true;
+			funcion.formal_paramLista = fo.formal_paramLista;
+			funcion.dosPuntos = d;
+			funcion.esDosPuntos = true;
+			funcion.tbas = t.tbas;
+			funcion.puntocoma = p1;
+			funcion.esPuntocoma = true;
+			Programa bloque = new Programa();
+			bloque = b;
+			funcion.puntocoma = p2;
+			funcion.esPuntocoma = true;
+			RESULT =funcion; :} 
 	;
 	
 	
-////////////////// AGREGA
-	FORMAL_PARAMLIST ::= OPEN_PARENTESIS:o FORMAL_PARAM:f CLOSE_PARENTESIS:c {: 
-			Simbolo op= new Simbolo();
-			op.abreParenteis =o;
-			op.esAbreParenteis=true;	
-			
-			Simbolo cp= new Simbolo();
-			cp.cierraParentesis =c;
-			cp.esCierraParentesis=true;	
+////////////////// ASIGNA
+	FORMAL_PARAMLIST ::= OPEN_PARENTESIS:o FORMAL_PARAM:f CLOSE_PARENTESIS:c {:
+			Funcion funcion = new Funcion(); 
+			funcion.abreParenteis =o;
+			funcion.esAbreParenteis=true;	
+			funcion.cierraParentesis =c;
+			funcion.esCierraParentesis=true;	
+			SubFuncion subfuncion= new SubFuncion();
+			subfuncion.formal_param=f.formal_param;
+			funcion.cierraParentesis =o;
+			funcion.esCierraParentesis=true;:} |VACIO|
+	;
+	
 
-			Declaraciones declaraciones= new Declaraciones();
-			declaraciones.add(cp);	
-			declaraciones.parametrosFormales=f.parametrosFormales;
-			declaraciones.add(cp);	
-			RESULT =declaraciones;:} |VACIO|
-	;
-	
-	
+/////////////////AGREGA hay bucle	
 	FORMAL_PARAM ::= VARLIST:v DOUBLE_COLON:d  TBAS:t {:
-			Simbolo dbc= new Simbolo();
-			dbc.dosPuntos =d;
-			dbc.esDosPuntos=true;
-			Definicion definicion= new Definicion();
-			definicion.varLista=v.varLista;
-			definicion.add(dbc);	
-			definicion.tbas=t.tbas;
-	 		RESULT =definicion; :} 
+			SubFuncion subfuncion= new SubFuncion();
+			Simbolo simbolo= new Simbolo();
+			simbolo.varLista=v.varLista;
+			simbolo.dosPuntos =d;
+			simbolo.esDosPuntos=true;
+			simbolo.tbas=t.tbas;
+			subfuncion.formal_param.add(subfuncion);
+		 	RESULT =subfuncion;  :} 
 	| VARLIST:v DOUBLE_COLON:d TBAS:t  POINT_SEMICOLON:ps FORMAL_PARAM:f {: 
-			Simbolo dbc= new Simbolo();
-			dbc.dosPuntos =d;
-			dbc.esDosPuntos=true;	
-			Simbolo pos= new Simbolo();
-			pos.puntocoma =ps;
-			pos.esPuntocoma=true;
-
-			Definicion definicion= new Definicion();
-			definicion.varLista=v.varLista;	
-			definicion.add(dbc);	
-			definicion.tbas=t.tbas;
-			definicion.add(ps);	
-			definicion.parametrosFormales=f.parametrosFormales;
-			RESULT =definicion;  :} 
-	;
+			SubFuncion subfuncion= new SubFuncion();
+			Simbolo simbolo= new Simbolo();
+			simbolo.dosPuntos =d;
+			simbolo.esDosPuntos=true;
+			simbolo.tbas=t.tbas;
+			simbolo.puntocoma=ps;
+			simbolo.esPuntocoma=true;
+			subfuncion.formal_param.add(subfuncion);
+			subfuncion.formal_param.addAll(f.formal_param);
+			RESULT =subfuncion;  :} ;
 	
+	
+	//ASIGNA
 	TBAS ::= NUMERIC_INTEGER_CONST:n {: 
 			Simbolo simbolo= new Simbolo();
-			simbolo.numericoEnteroConstante =ni;
+			simbolo.numericoEnteroConstante =n;
 			simbolo.esNumericoEnteroConstante=true;	
 			RESULT =simbolo; :}
 	| NUMERIC_REAL_CONST:r {: 
 			Simbolo simbolo= new Simbolo();
-			simbolo.real =ni;
+			simbolo.real =r;
 			simbolo.esReal=true;	
 			RESULT =simbolo;  :}
 	;
@@ -376,61 +356,55 @@ BLQ ::= DCLLIST:dc BEGIN SENTLIST:sl END{:
 	
 	////////////////////ASIGNA
 	SENT ::= ASIG:a POINT_SEMICOLON:ps {: 
-			Simbolo pos= new Simbolo();
-			pos.puntocoma =ps;
-			pos.esPuntocoma=true;
-			Expresion expresion= new Expresion();
-			expresion.asig=a.asig;
-			expresion.add(pos);
-			RESULT =expresion; :}
+			Sentencia sentencia= new Sentencia();
+			sentencia.asig=a.asig;
+			sentencia.puntocoma =ps;
+			sentencia.esPuntocoma=true;
+			RESULT =sentencia; :}
 	| PROC_CALL:p POINT_SEMICOLON:ps {: 
-			Simbolo pos= new Simbolo();
-			pos.puntocoma =ps;
-			pos.esPuntocoma=true;
-			Expresion expresion= new Expresion();
-			expresion.procCall=p.procCall;
-			expresion.add(pos);
-			RESULT =expresion;  :}
+			Sentencia sentencia= new Sentencia();
+			sentencia.proc_call=p.proc_call;
+			sentencia.puntocoma =ps;
+			sentencia.esPuntocoma=true;
+			RESULT =sentencia;  :}
 	;
 	
-	
-
+////////////////////ASIGNA
 	ASIG ::= ID:i POINT_SEMICOLON:ps EXP:e {: 
-			Simbolo pos= new Simbolo();
-			pos.puntocoma =ps;
-			pos.esPuntocoma=true;
-			Expresion expresion= new Expresion();
-			expresion.id=i.id;
-			expresion.add(pos);
-			expresion.exp=e.exp;
-			RESULT =expresion; :}
+			Sentencia sentencia= new Sentencia();
+			sentencia.puntocoma =ps;
+			sentencia.esPuntocoma=true;
+			SubSentencia subsentencia = new SubSentencia();
+			subsentencia.exp=i.exp;
+			RESULT =sentencia; :}
 	;
-	
+////////////////////ASIGNA
 	ID ::= IDENTIFIER:i {: 
 			Simbolo simbolo= new Simbolo();
 			simbolo.identificador =i;
 			simbolo.esIdentificador=true;
 			RESULT = simbolo; :}
 	;
-	
+////////////////////ASIGNA 
 	EXP ::= EXP:e1 OP:o EXP:e2  {: 
-			Expresion expresion= new Expresion();
-			expresion.exp=e1;
-			expresion.op=o;
-			expresion.exp=e2;
-			RESULT=expresion;  :}
+			SubSentencia subsentencia = new SubSentencia();
+			subsentencia.exp.add(e1);
+			subsentencia.op.add(o);
+			subsentencia.exp.add(e2);
+			RESULT=subsentencia;  :}
 	| FACTOR:f  {: 
-			Expresion expresion= new Expresion();
-			expresion.factor=f.factor;
-			RESULT =expresion; :}
+			SubSentencia subsentencia  = new SubSentencia();
+			subsentencia.factor.add(f);
+			RESULT =subsentencia; :}
 	;
-	
+////////////////////ASIGNA -- rvr
 	OP ::= OPARIT:o  {: 
-			Expresion expresion= new Expresion();
-			expresion.op=o;
-			RESULT =expresion;  :}
+			SubSentencia subsentencia = new SubSentencia();
+			subsentencia.op=o.op;
+			RESULT =subsentencia;  :}
 	;
-	
+
+////////////////////ASIGNA
 	OPARIT ::= PLUS:p {: 
 			Simbolo simbolo= new Simbolo();
 			simbolo.mas =p;
@@ -439,7 +413,7 @@ BLQ ::= DCLLIST:dc BEGIN SENTLIST:sl END{:
 	:}
 	| MINUS:mi  {: 
 			Simbolo simbolo= new Simbolo();
-			simbolo.menos mi;
+			simbolo.menos=mi;
 			simbolo.esMenos=true;
 			RESULT =simbolo;  
 	:}
@@ -464,63 +438,58 @@ BLQ ::= DCLLIST:dc BEGIN SENTLIST:sl END{:
 	;
 	
 	
-	
+////////////////////ASIGNA 
 	FACTOR ::= SIMPVALUE:s  {: 
-		Expresion expresion= new Expresion();
-		expresion.valorsimple=s.valorsimple;
-		RESULT =expresion;  :}
+		SubSentencia subsentencia = new SubSentencia();
+		subsentencia.simpvalue=s.simpvalue;
+		RESULT =subsentencia;  :}
 	| OPEN_PARENTESIS:o EXP:e CLOSE_PARENTESIS:c {:
-			Simbolo op= new Simbolo();
-			op.abreParenteis =o;
-			op.esAbreParenteis=true;	
-			Simbolo cp= new Simbolo();
-			cp.cierraParentesis =c;
-			cp.esCierraParentesis=true;	 
-			Expresion expresion= new Expresion();
-			expresion.add(op);
-			expresion.exp=e.exp;
-			expresion.add(cp);
-			RESULT =expresion; :}
+			SubSentencia subsentencia = new SubSentencia();
+			subsentencia.abreParenteis =o;
+			subsentencia.esAbreParenteis=true;	
+			subsentencia.cierraParentesis =c;
+			subsentencia.exp= e.exp;
+			subsentencia.esCierraParentesis=true;	 
+			RESULT =subsentencia; :}
 	| IDENTIFIER:i  SUBPARAMLIST:s  {: 
-			Simbolo id= new Simbolo();
-			simbolo.identificador =i;
-			simbolo.esIdentificador=true;
-			Expresion expresion= new Expresion();
-			expresion.add(id);
-			expresion.subparamLista=s.subparamLista;
-			RESULT =expresion; 
+			SubSentencia subsentencia = new SubSentencia();
+			subsentencia.identificador =i;
+			subsentencia.esIdentificador=true;
+			subsentencia.subparamLista=s.subparamLista;
+			RESULT =subsentencia; 
 	:}
 	;
-	
+////////////////////ASIGNA
 	SUBPARAMLIST ::=  OPEN_PARENTESIS:o EXPLIST:e CLOSE_PARENTESIS:c  {: 
-			Simbolo op= new Simbolo();
-			op.abreParenteis =o;
-			op.esAbreParenteis=true;	
-			Simbolo cp= new Simbolo();
-			cp.cierraParentesis =c;
-			cp.esCierraParentesis=true;	 
-			Expresion expresion= new Expresion();
-			expresion.add(op);
-			expresion.expLista=e.expLista;
-			expresion.add(cp);
-			RESULT =expresion;
+			Sentencia sentencia= new Sentencia();
+			sentencia.abreParenteis =o;
+			sentencia.esAbreParenteis=true;	
+			sentencia.exp=e.exp;
+			sentencia.cierraParentesis =c;
+			sentencia.esCierraParentesis=true;	 
+			RESULT =sentencia;
 		:}
 		;
-	
+
+////////////////////ASIGNA	
 	EXPLIST ::= EXP:e  {: 
-			Expresion expresion= new Expresion();
-			expresion.exp=e.exp;
-			RESULT =expresion; :}
+			SubSentencia subsentencia= new SubSentencia();
+			subsentencia.exp = e.exp;
+			RESULT = subsentencia; :}
 	| EXP:e SEMICOLON:s EXPLIST:ex  {: 
-			Expresion expresion= new Expresion();
-			expresion.expLista=e.expLista;
-			RESULT =expresion;  :}
+			SubSentencia subsentencia= new SubSentencia();	
+			subsentencia.coma=s;
+			subsentencia.esComa=true;
+			subsentencia.exp=e.exp;
+			RESULT =subsentencia;  :}
 	;
 	 
 	PROC_CALL ::= IDENTIFIER:i SUBPARAMLIST:s {:
-			Expresion expresion= new Expresion();
- 			expresion.procCall=p.procCall;
-			RESULT =expresion; :}
+			Sentencia sentencia= new Sentencia();
+			sentencia.identificador=i;
+			sentencia.esIdentificador=true;
+ 			sentencia.proc_call = s.proc_call;
+			RESULT =sentencia; :}
 	;
 	
 	

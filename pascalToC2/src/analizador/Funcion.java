@@ -11,7 +11,7 @@ public class Funcion extends Simbolo {
 	public ArrayList<SubFuncion> cteLista;
 	public ArrayList<SubFuncion> defvarLista;
 	public ArrayList<SubFuncion> varLista;
-	public ArrayList<SubFuncion> formal_param;
+	public ArrayList<SubFuncion> formal_paramLista;
 
 	// ?
 
