@@ -3,8 +3,8 @@ package analizador;
 import java.util.ArrayList;
 
 public class Simbolo {
-	public String program = "";
-	public boolean esProgram = false;
+	public String programa = "";
+	public boolean esPrograma = false;
 	public String identificador = "";
 	public boolean esIdentificador = false;
 	public String empieza = "";
@@ -40,15 +40,6 @@ public class Simbolo {
 	public boolean esComa = false;
 	public String procedimiento = "";
 	public boolean esProcedimiento = false;
-	public ArrayList<Simbolo> varLista;
-	public ArrayList<Simbolo> tbas;
-	public ArrayList<Simbolo> simpvalue;
-	public ArrayList<Simbolo> devarlista;
-	public ArrayList<Simbolo> proc_call;
-	public ArrayList<Simbolo> asig;
-	public ArrayList<Simbolo> subparamLista;
-	public ArrayList<Simbolo> op;
-	public ArrayList<Simbolo> exp;
 	public String mas = "";
 	public boolean esMas = false;
 	public String menos = "";
@@ -59,4 +50,14 @@ public class Simbolo {
 	public boolean esDivide = false;
 	public String mod = "";
 	public boolean esMod = false;
+	public ArrayList<Simbolo> varLista;
+	public ArrayList<Simbolo> tbas;
+	public ArrayList<Simbolo> simpvalue;
+	public ArrayList<Simbolo> devarlista;
+	public ArrayList<Simbolo> proc_call;
+	public ArrayList<Simbolo> asig;
+	public ArrayList<Simbolo> subparamLista;
+	public ArrayList<Simbolo> op;
+	public ArrayList<Simbolo> exp;
+
 }

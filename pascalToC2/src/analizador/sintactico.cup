@@ -4,19 +4,21 @@
 	import java_cup.runtime.Symbol;
 	import java.io.FileOutputStream;
 	import java.io.IOException;
-//CONTROL DE ERRORESZ 
-	parser code {:
-
-public void syntax_error (Symbol s){
-	System.err.println("Error de sintaxis (lexema <" + s.value.toString() + ">) en la linea " + s.left + " y en la columna " + s.right);
-	System.err.println("Error recuperado");
-}
-
-public void unrecovered_syntax_error(Symbol s){
-	System.err.println("Error de sintaxis no recuperable");
-}
+//CONTROL DE ERRORES 
+parser code {:
+/// inicializacion de todas las variables
+// Connect this parser to a scanner!
+    scanner s;
+    Parser(scanner s){ System.out.println(s);}
 :};
 	
+	
+	
+/* Preliminaries to set up and use the scanner.  */
+init with {: scanner.init();              :};
+//scan with {: return scanner.next_token(); :};
+	
+
 	
 //DECLARACION DE TERMINALES
 // ver porque hector tiene algunos terminales definidos como String
@@ -78,15 +80,13 @@ public void unrecovered_syntax_error(Symbol s){
 //GRAMATICA
 	
 //ASIGNACIONES	
-PRG ::= PROGRAM IDENTIFIER:id  BLQ:b  {: 
+PRG ::= PROGRAM:p IDENTIFIER:id  BLQ:b  {: 
 	//eporta todos los arraylist a un fichero de texto llamado Programa.c
 	//main.exportaFichero(p)
 	Programa programa = new Programa();
-	programa.empieza = "begin";
-	programa.esEmpieza = true;
-	programa.fin = "end";
-	programa.esFin = true;
-	programa.imprimir().toString();
+	programa.programa ="programa";
+ 	programa.identificador=id;
+	programa.blq= b.blq;
 	RESULT = programa;:} 
 	;
 

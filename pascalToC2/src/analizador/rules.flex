@@ -42,7 +42,7 @@ fin_comentario_multilinea="*)"
 
    //terminales
   
-   	"program" {return new Symbol(sym.PROGRAM);}
+   	"programa" {return new Symbol(sym.PROGRAM);}
 	"begin" {return new Symbol(sym.BEGIN);}
 	"end" {return new Symbol(sym.END);}
 	"var" {return new Symbol(sym.VAR);}
