@@ -9,6 +9,24 @@ import java_cup.runtime.*;
 
 %{
 	private int commentCountMultilinea = 0;
+	
+		public boolean errorLexico = false;
+	
+    private Symbol symbol(int type) 
+    {
+        return new Symbol(type, (yyline+1), (yycolumn+1), yytext());
+    }
+
+    private Symbol symbol(int type, String txt) 
+    {
+        return new Symbol(type, (yyline+1), (yycolumn+1), txt);
+    }
+
+    private void printError(String msg, String token, int row, int col) 
+    {
+        System.out.println("Error Léxico en linea/columna: " + row + "/"+ col + " y token: " + token + " Mensaje:  " + msg);
+        errorLexico = true;
+    }
 
 %}
 
@@ -20,7 +38,8 @@ exponencial=([0-9]+)[e|E][+|-]?[0-9]+
 mixto= punto [e|E][+|-]?[0-9]+
 numeric_real_const =({punto}|{exponencial}|{mixto})
 string_const=[\u0027][^\n\r]+[\u0027]
-identifier = [a-zA-Z] [a-zA-Z0-9 \u005f]+ [^\u00f1]+ [^\u00d1]+ [a-zA-Z0-9  \u005f]+
+identifier = [a-zA-Z][a-zA-Z0-9 \u005f]+ [^\u00f1]+ [^\u00d1]+ [a-zA-Z0-9  \u005f]+
+
 
 salto=([\n])+
 comentario_linea="{"[^\n\r]+"}"
@@ -56,6 +75,7 @@ fin_comentario_multilinea="*)"
 	"-" {return new Symbol(sym.MINUS);}
 	"*" {return new Symbol(sym.MULTIPLICACION);}
 	":" {return new Symbol(sym.DOUBLE_COLON);}
+	"." {return new Symbol(sym.POINT);}
 	"div" {return new Symbol(sym.DIV);}
 	"mod" {return new Symbol(sym.MOD);}
 	

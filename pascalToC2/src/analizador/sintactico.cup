@@ -6,63 +6,32 @@
 	import java.io.IOException;
 //CONTROL DE ERRORES 
 parser code {:
-/// inicializacion de todas las variables
-// Connect this parser to a scanner!
-    scanner s;
-    Parser(scanner s){ System.out.println(s);}
+   /* Metodo al que se llama automaticamente ante algun error sintactico */
+
+
+    /* Metodo al que se llama automaticamente ante algun error sintactico */
+    public void syntax_error(Symbol s){
+        System.out.println("Error en la linea "+(s.left)+" columna "+s.right+ ". Token "+s.value+" no reconocido.");
+		this.errorSintactico = true;
+    }
+   /* Errores irreparables */
+ /*   public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+        System.out.println("Error grave en la linea "+(s.left)+" columna "+s.right+ ". Token "+s.value+" no reconocido.");
+		
+    }*/
+ 
 :};
 	
 	
-	
-/* Preliminaries to set up and use the scanner.  */
-init with {: scanner.init();              :};
-//scan with {: return scanner.next_token(); :};
-	
-
-	
 //DECLARACION DE TERMINALES
-// ver porque hector tiene algunos terminales definidos como String
 	terminal String PROGRAM,FUNCTION,PROCEDURE, BEGIN,END,VAR,OPEN_PARENTESIS,CLOSE_PARENTESIS,POINT_SEMICOLON,
-	 SEMICOLON,EQUAL,DOUBLE_COLON,CONST,IDENTIFIER,NUMERIC_REAL_CONST,
+	 SEMICOLON,EQUAL,DOUBLE_COLON,CONST,IDENTIFIER,NUMERIC_REAL_CONST,POINT,
 	 NUMERIC_INTEGER_CONST,STRING_CONST,VACIO,MOD,MULTIPLICACION,PLUS,DIV,MINUS,END_COMENT;
 	 
-	 //MOD , MULTIPLICACION , PLUS ,DIV,MINUS,REAL
-// terminal DOUBLE_COLON_EQUAL;
-//terminal RETURN; 
-//terminal VOID;
-//terminal INT;
-//terminal FLOAT;
-//terminal IF;
-//terminal THEN;
-//terminal ELSE;	
-//terminal WHILE;
-//terminal DO;
-//terminal REPEAT;
-//terminal UNTIL;
-//terminal FOR;
-//terminal DOWNTO;
-//terminal OR;
-//terminal AND;
-//terminal NOT;
-//terminal GRETTER;
-//terminal LESS;
-//terminal GRETTER_EQUAL;
-//terminal LESS_EQUAL;
-//terminal PLUS_EQUAL;
-//terminal MINUS_EQUAL;
-//terminal MULTIPLICACION_EQUAL;
-//terminal DIV_EQUAL;
-	
-//terminal END_COMENT;
-//terminal JUMP;
-	
+
 //NO TERMINALES
-// Top de la gramatica 
-// metodo list de arraylist 
-// metodo recorrer y expulsarlo en el fichero  
 	non terminal Programa PRG,BLQ;
 	non terminal Sentencia SENTLIST,SENT,ASIG,SUBPARAMLIST,PROC_CALL;
-	// requieren arraylist
 	non terminal Funcion DCLLIST,DCL,DEFCTE,DEFVAR,DEFPROC,DEFFUN,FORMAL_PARAMLIST;
 	non terminal SubSentencia FACTOR,EXPLIST;
 	non terminal SubFuncion CTELIST,DEFVARLIST,VARLIST,FORMAL_PARAM;
@@ -78,25 +47,25 @@ init with {: scanner.init();              :};
 	precedence left OPEN_PARENTESIS,CLOSE_PARENTESIS, PLUS, MINUS,MULTIPLICACION,DIV,MOD;
 	
 //GRAMATICA
-	
 //ASIGNACIONES	
-PRG ::= PROGRAM:p IDENTIFIER:id  BLQ:b  {: 
+start with PRG;
+PRG ::= PROGRAM:p IDENTIFIER:id POINT_SEMICOLON:ps  BLQ:b  POINT:p{: 
 	//eporta todos los arraylist a un fichero de texto llamado Programa.c
 	//main.exportaFichero(p)
 	Programa programa = new Programa();
-	programa.programa ="programa";
+	programa.programa = p;
  	programa.identificador=id;
 	programa.blq= b.blq;
 	RESULT = programa;:} 
 	;
 
-BLQ ::= DCLLIST:dc BEGIN SENTLIST:sl END{:
+BLQ ::= DCLLIST:dc BEGIN:b SENTLIST:sl END:e{:
 	Programa bloque = new Programa();
 	bloque.dclLista=dc.dclLista;
-	bloque.empieza ="begin";
+	bloque.empieza =b;
 	bloque.esEmpieza = true;
 	bloque.sentLista=sl.sentLista;
-	bloque.fin ="end";
+	bloque.fin =e;
 	bloque.esFin = true;
 	RESULT =bloque; :} 
 	;

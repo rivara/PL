@@ -8,15 +8,15 @@ public class Main {
 	// String codigo = "program Hello;\r\n" + "begin\r\n" + " writeln ('Hello,
 	// world.');\r\n" + " readln;\r\n"
 	// + "end.";
-	String codigo = "programa ok";
-	sintactico analizador = new sintactico();
 	// comprueba que el codigo este bien
 	// analizador.checking(codigo);
 	// si checking es igual a nulo no tiene errores y se puede traducir
 	// traduce
 
-	// TRADUCCION
-//public String translator(String code) {
+	// TRADUCCIOn
+	// private static void translatror(sintactico sintaxis) {
+	// TODO Auto-generated method stub
+
 	// ArrayList<String> codigo = new ArrayList<String>();
 	// LIBRERIAS STANDARD
 	// Programa p = this.checking(code);
@@ -37,9 +37,9 @@ public class Main {
 	 * 
 	 * for (int i = 0; i < cuentaCte; i++) {
 	 * System.out.println(subfuncion.cteLista.get(i)); }
-	 * 
-	 * }
 	 */
+
+	// }
 
 	// forarch(CTELIST)
 	// codigo.add("#define");
@@ -63,24 +63,29 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		String one = args[0]; // =="one"
-		// sintactico lexico = null;
+		String one = args[0];
 		if (args.length == 0) {
 			System.out.println("Es obligatorio pasar la ruta del archivo de prueba como parámetro");
 		} else {
-///////////////////////////////////ALIMENTACION JCUP
 			rules lexico = null;
 			try {
 				lexico = new rules(new java.io.FileReader(args[0]));
 			} catch (FileNotFoundException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			@SuppressWarnings("deprecation")
 			sintactico sintaxis = new sintactico(lexico);
 			try {
-				sintaxis.parse();
-				// sintaxis.checking(sintaxis);
+				Programa p = (Programa) sintaxis.parse().value;
+				System.out.println(p.programa);
+
+				Funcion f = (Funcion) sintaxis.parse().value;
+				// f.formal_paramLista
+
+				// System.out.println(p.abreParenteis);
+
+				/// ESTA ES LA INSTANCIA DONDE CON LA SINTAXIS CARGADA GENERO LA TARDUCCION
+				// translatror(sintaxis);
 
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
@@ -109,4 +114,5 @@ public class Main {
 		}
 
 	}
+
 }
