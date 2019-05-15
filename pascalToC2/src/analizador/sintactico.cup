@@ -4,39 +4,53 @@
 	import java_cup.runtime.Symbol;
 	import java.io.FileOutputStream;
 	import java.io.IOException;
+	import java.util.ArrayList;
+
 //CONTROL DE ERRORES 
 parser code {:
-   /* Metodo al que se llama automaticamente ante algun error sintactico */
+ 	public static ArrayList<String> pgr = new ArrayList<String>(); 
+  	public static ArrayList<String> ErroresSintacticos=new ArrayList<String>();
+	public int cont = 0;
+	   
+	
 
-
-    /* Metodo al que se llama automaticamente ante algun error sintactico */
+    /**Metodo al que se llama automáticamente ante algún error sintactico.*/
     public void syntax_error(Symbol s){
-        System.out.println("Error en la linea "+(s.left)+" columna "+s.right+ ". Token "+s.value+" no reconocido.");
-		this.errorSintactico = true;
+        System.out.println("Error en la Línea " + (s.right+1) +" Columna "+s.left+ ". Identificador "
+        +s.value + " no reconocido." );
+     ErroresSintacticos.add("Error Sintactico: "+s.value.toString()+" Linea: "+(s.right+1)+";");
     }
-   /* Errores irreparables */
- /*   public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
-        System.out.println("Error grave en la linea "+(s.left)+" columna "+s.right+ ". Token "+s.value+" no reconocido.");
-		
-    }*/
- 
+
+
+
+    /**Metodo al que se llama en el momento en que ya no es posible una recuperación de
+    errores.*/
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+        System.out.println("Error en la Linea " + (s.right+1)+ " Columna "+s.left+". Identificador " +
+        s.value + " no reconocido.");
+ ErroresSintacticos.add("Error Sintactico: "+s.value.toString()+" Linea: "+(s.right+1)+";");
+    }
+
+
+
+
 :};
 	
 	
 //DECLARACION DE TERMINALES
 	terminal String PROGRAM,FUNCTION,PROCEDURE, BEGIN,END,VAR,OPEN_PARENTESIS,CLOSE_PARENTESIS,POINT_SEMICOLON,
 	 SEMICOLON,EQUAL,DOUBLE_COLON,CONST,IDENTIFIER,NUMERIC_REAL_CONST,POINT,
-	 NUMERIC_INTEGER_CONST,STRING_CONST,VACIO,MOD,MULTIPLICACION,PLUS,DIV,MINUS,END_COMENT;
+	 NUMERIC_INTEGER_CONST,STRING_CONST,VACIO,MOD,MULTIPLICACION,PLUS,DIV,MINUS;
 	 
 
 //NO TERMINALES
-	non terminal Programa PRG,BLQ;
+	non terminal Programa BLQ,PRG;
 	non terminal Sentencia SENTLIST,SENT,ASIG,SUBPARAMLIST,PROC_CALL;
 	non terminal Funcion DCLLIST,DCL,DEFCTE,DEFVAR,DEFPROC,DEFFUN,FORMAL_PARAMLIST;
 	non terminal SubSentencia FACTOR,EXPLIST;
 	non terminal SubFuncion CTELIST,DEFVARLIST,VARLIST,FORMAL_PARAM;
 	non terminal Simbolo  OP,TBAS,OPARIT,ID,SIMPVALUE,EXP;
-	
+
 
 	
 	
@@ -47,16 +61,23 @@ parser code {:
 	precedence left OPEN_PARENTESIS,CLOSE_PARENTESIS, PLUS, MINUS,MULTIPLICACION,DIV,MOD;
 	
 //GRAMATICA
-//ASIGNACIONES	
+//ASIGNACIONES
+// quitar blq y a�adir ""a ver si lo reconoce asi	
 start with PRG;
-PRG ::= PROGRAM:p IDENTIFIER:id POINT_SEMICOLON:ps  BLQ:b  POINT:p{: 
-	//eporta todos los arraylist a un fichero de texto llamado Programa.c
-	//main.exportaFichero(p)
+
+PRG ::= PROGRAM:p IDENTIFIER:id POINT_SEMICOLON:ps  BLQ:b  POINT:pt{: 
 	Programa programa = new Programa();
-	programa.programa = p;
+	programa.programa =p;
  	programa.identificador=id;
-	programa.blq= b.blq;
-	RESULT = programa;:} 
+	programa.puntocoma=";";
+	//programa.blq= b.blq;
+	programa.punto=".";
+    parser.cont++;
+	// AQUI AGREGO EL ARRYLIST DE PROGRAMAS
+	pgr.add(programa);
+	// VERSION PEDRO
+	//Programa.generarFichero(p.imprimir().toString());
+	RESULT =programa;:}  //procesarFor(p.toString());:} 
 	;
 
 BLQ ::= DCLLIST:dc BEGIN:b SENTLIST:sl END:e{:
@@ -251,7 +272,7 @@ BLQ ::= DCLLIST:dc BEGIN:b SENTLIST:sl END:e{:
 			RESULT = funcion;:} 
 	;
 	
-	////////////////// ASIGNA
+////////////////// ASIGNA
 	DEFFUN ::= FUNCTION:f IDENTIFIER:i FORMAL_PARAMLIST:fo DOUBLE_COLON:d TBAS:t POINT_SEMICOLON:p1 BLQ:b POINT_SEMICOLON:p2{: 
 	  		Funcion funcion = new Funcion();
 			funcion.funcion = f;
@@ -323,7 +344,7 @@ BLQ ::= DCLLIST:dc BEGIN:b SENTLIST:sl END:e{:
 	;
 	
 	
-	////////////////////ASIGNA
+///////////////////ASIGNA
 	SENT ::= ASIG:a POINT_SEMICOLON:ps {: 
 			Sentencia sentencia= new Sentencia();
 			sentencia.asig=a.asig;

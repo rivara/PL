@@ -75,17 +75,13 @@ public class Main {
 			}
 			@SuppressWarnings("deprecation")
 			sintactico sintaxis = new sintactico(lexico);
+			System.out.println(sintaxis.pgr.size());
 			try {
-				Programa p = (Programa) sintaxis.parse().value;
-				System.out.println(p.programa);
-
-				Funcion f = (Funcion) sintaxis.parse().value;
-				// f.formal_paramLista
-
-				// System.out.println(p.abreParenteis);
 
 				/// ESTA ES LA INSTANCIA DONDE CON LA SINTAXIS CARGADA GENERO LA TARDUCCION
-				// translatror(sintaxis);
+				//
+				// toFile(translatror(sintaxis));
+				/// LUEGO SE GENERA EL FICHERO
 
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block

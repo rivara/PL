@@ -31,7 +31,6 @@ public class sym {
   public static final int CONST = 14;
   public static final int error = 1;
   public static final int NUMERIC_REAL_CONST = 16;
-  public static final int END_COMENT = 26;
   public static final int DOUBLE_COLON = 13;
   public static final int VAR = 7;
   public static final int VACIO = 20;
@@ -61,8 +60,7 @@ public class sym {
   "MULTIPLICACION",
   "PLUS",
   "DIV",
-  "MINUS",
-  "END_COMENT"
+  "MINUS"
   };
 }
 

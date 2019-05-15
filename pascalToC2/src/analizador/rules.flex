@@ -39,10 +39,6 @@ mixto= punto [e|E][+|-]?[0-9]+
 numeric_real_const =({punto}|{exponencial}|{mixto})
 string_const=[\u0027][^\n\r]+[\u0027]
 identifier = [a-zA-Z][a-zA-Z0-9 \u005f]+ [^\u00f1]+ [^\u00d1]+ [a-zA-Z0-9  \u005f]+
-
-
-salto=([\n])+
-comentario_linea="{"[^\n\r]+"}"
 ini_comentario_multilinea="(*"
 fin_comentario_multilinea="*)"
 
@@ -84,8 +80,6 @@ fin_comentario_multilinea="*)"
 	{numeric_real_const}  {return new Symbol(sym.NUMERIC_REAL_CONST, new String(yytext())); } 
 	{numeric_integer_const}  {return new Symbol(sym.NUMERIC_INTEGER_CONST, new String(yytext())); } 
 	{string_const} {return new Symbol(sym.STRING_CONST, new String(yytext())); } 
-	{fin_comentario_multilinea} {return new Symbol(sym.END_COMENT, new String(yytext())); }
-	{comentario_linea}  {return new Symbol(sym.IDENTIFIER, new String(yytext())); } 
 	{espacio} {}
 	//
 	[^] {return new Symbol(sym.PROGRAM);}
@@ -106,6 +100,3 @@ fin_comentario_multilinea="*)"
     }
     [^] { }
 }
-
-
-

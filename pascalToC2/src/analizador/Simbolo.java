@@ -50,6 +50,8 @@ public class Simbolo {
 	public boolean esDivide = false;
 	public String mod = "";
 	public boolean esMod = false;
+	public String punto = "";
+	public boolean esPunto = false;
 	public ArrayList<Simbolo> varLista;
 	public ArrayList<Simbolo> tbas;
 	public ArrayList<Simbolo> simpvalue;

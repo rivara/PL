@@ -9,6 +9,7 @@ import java_cup.runtime.*;
 import java_cup.runtime.Symbol;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java_cup.runtime.XMLElement;
 
 /** CUP v0.11b 20160615 (GIT 4ac7450) generated parser.
@@ -34,7 +35,7 @@ public class sintactico extends java_cup.runtime.lr_parser {
   /** Production table. */
   protected static final short _production_table[][] = 
     unpackFromStrings(new String[] {
-    "\000\063\000\002\002\004\000\002\002\007\000\002\003" +
+    "\000\063\000\002\002\004\000\002\003\007\000\002\002" +
     "\006\000\002\011\004\000\002\011\003\000\002\011\002" +
     "\000\002\004\003\000\002\004\004\000\002\012\003\000" +
     "\002\012\003\000\002\012\003\000\002\012\003\000\002" +
@@ -145,8 +146,8 @@ public class sintactico extends java_cup.runtime.lr_parser {
   /** <code>reduce_goto</code> table. */
   protected static final short[][] _reduce_table = 
     unpackFromStrings(new String[] {
-    "\000\144\000\004\002\003\001\001\000\002\001\001\000" +
-    "\002\001\001\000\002\001\001\000\006\003\010\011\007" +
+    "\000\144\000\004\003\003\001\001\000\002\001\001\000" +
+    "\002\001\001\000\002\001\001\000\006\002\010\011\007" +
     "\001\001\000\014\012\013\013\020\014\023\015\016\016" +
     "\017\001\001\000\002\001\001\000\002\001\001\000\002" +
     "\001\001\000\002\001\001\000\002\001\001\000\006\023" +
@@ -175,7 +176,7 @@ public class sintactico extends java_cup.runtime.lr_parser {
     "\001\000\006\026\063\030\072\001\001\000\004\017\106" +
     "\001\001\000\006\024\117\025\116\001\001\000\002\001" +
     "\001\000\002\001\001\000\004\027\110\001\001\000\002" +
-    "\001\001\000\002\001\001\000\002\001\001\000\006\003" +
+    "\001\001\000\002\001\001\000\002\001\001\000\006\002" +
     "\114\011\007\001\001\000\002\001\001\000\002\001\001" +
     "\000\002\001\001\000\002\001\001\000\002\001\001\000" +
     "\004\024\122\001\001\000\002\001\001\000\004\027\124" +
@@ -184,7 +185,7 @@ public class sintactico extends java_cup.runtime.lr_parser {
     "\000\002\001\001\000\004\024\133\001\001\000\002\001" +
     "\001\000\004\027\135\001\001\000\002\001\001\000\004" +
     "\027\137\001\001\000\002\001\001\000\004\017\141\001" +
-    "\001\000\002\001\001\000\006\003\143\011\007\001\001" +
+    "\001\000\002\001\001\000\006\002\143\011\007\001\001" +
     "\000\002\001\001\000\002\001\001\000\002\001\001" });
 
   /** Access to <code>reduce_goto</code> table. */
@@ -224,20 +225,32 @@ public class sintactico extends java_cup.runtime.lr_parser {
 
 
 
-   /* Metodo al que se llama automaticamente ante algun error sintactico */
+ 	public static ArrayList<String> pgr = new ArrayList<String>(); 
+  	public static ArrayList<String> ErroresSintacticos=new ArrayList<String>();
+	public int cont = 0;
+	   
+	
 
-
-    /* Metodo al que se llama automaticamente ante algun error sintactico */
+    /**Metodo al que se llama automáticamente ante algún error sintactico.*/
     public void syntax_error(Symbol s){
-        System.out.println("Error en la linea "+(s.left)+" columna "+s.right+ ". Token "+s.value+" no reconocido.");
-		this.errorSintactico = true;
+        System.out.println("Error en la Línea " + (s.right+1) +" Columna "+s.left+ ". Identificador "
+        +s.value + " no reconocido." );
+     ErroresSintacticos.add("Error Sintactico: "+s.value.toString()+" Linea: "+(s.right+1)+";");
     }
-   /* Errores irreparables */
- /*   public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
-        System.out.println("Error grave en la linea "+(s.left)+" columna "+s.right+ ". Token "+s.value+" no reconocido.");
-		
-    }*/
- 
+
+
+
+    /**Metodo al que se llama en el momento en que ya no es posible una recuperación de
+    errores.*/
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+        System.out.println("Error en la Linea " + (s.right+1)+ " Columna "+s.left+". Identificador " +
+        s.value + " no reconocido.");
+ ErroresSintacticos.add("Error Sintactico: "+s.value.toString()+" Linea: "+(s.right+1)+";");
+    }
+
+
+
+
 
 
 /** Cup generated class to encapsulate user supplied action code.*/
@@ -294,18 +307,23 @@ class CUP$sintactico$actions {
 		int bleft = ((java_cup.runtime.Symbol)CUP$sintactico$stack.elementAt(CUP$sintactico$top-1)).left;
 		int bright = ((java_cup.runtime.Symbol)CUP$sintactico$stack.elementAt(CUP$sintactico$top-1)).right;
 		Programa b = (Programa)((java_cup.runtime.Symbol) CUP$sintactico$stack.elementAt(CUP$sintactico$top-1)).value;
-		int pleft = ((java_cup.runtime.Symbol)CUP$sintactico$stack.peek()).left;
-		int pright = ((java_cup.runtime.Symbol)CUP$sintactico$stack.peek()).right;
-		String p = (String)((java_cup.runtime.Symbol) CUP$sintactico$stack.peek()).value;
+		int ptleft = ((java_cup.runtime.Symbol)CUP$sintactico$stack.peek()).left;
+		int ptright = ((java_cup.runtime.Symbol)CUP$sintactico$stack.peek()).right;
+		String pt = (String)((java_cup.runtime.Symbol) CUP$sintactico$stack.peek()).value;
 		 
-	//eporta todos los arraylist a un fichero de texto llamado Programa.c
-	//main.exportaFichero(p)
 	Programa programa = new Programa();
-	programa.programa = p;
+	programa.programa =p;
  	programa.identificador=id;
-	programa.blq= b.blq;
-	RESULT = programa;
-              CUP$sintactico$result = parser.getSymbolFactory().newSymbol("PRG",0, ((java_cup.runtime.Symbol)CUP$sintactico$stack.elementAt(CUP$sintactico$top-4)), ((java_cup.runtime.Symbol)CUP$sintactico$stack.peek()), RESULT);
+	programa.puntocoma=";";
+	//programa.blq= b.blq;
+	programa.punto=".";
+    parser.cont++;
+	// AQUI AGREGO EL ARRYLIST DE PROGRAMAS
+	pgr.add(programa);
+	// VERSION PEDRO
+	//Programa.generarFichero(p.imprimir().toString());
+	RESULT =programa;
+              CUP$sintactico$result = parser.getSymbolFactory().newSymbol("PRG",1, ((java_cup.runtime.Symbol)CUP$sintactico$stack.elementAt(CUP$sintactico$top-4)), ((java_cup.runtime.Symbol)CUP$sintactico$stack.peek()), RESULT);
             }
           return CUP$sintactico$result;
 
@@ -334,7 +352,7 @@ class CUP$sintactico$actions {
 	bloque.fin =e;
 	bloque.esFin = true;
 	RESULT =bloque; 
-              CUP$sintactico$result = parser.getSymbolFactory().newSymbol("BLQ",1, ((java_cup.runtime.Symbol)CUP$sintactico$stack.elementAt(CUP$sintactico$top-3)), ((java_cup.runtime.Symbol)CUP$sintactico$stack.peek()), RESULT);
+              CUP$sintactico$result = parser.getSymbolFactory().newSymbol("BLQ",0, ((java_cup.runtime.Symbol)CUP$sintactico$stack.elementAt(CUP$sintactico$top-3)), ((java_cup.runtime.Symbol)CUP$sintactico$stack.peek()), RESULT);
             }
           return CUP$sintactico$result;
 
