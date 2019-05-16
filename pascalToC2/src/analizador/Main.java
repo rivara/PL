@@ -61,21 +61,22 @@ public class Main {
 	// return fin;
 //	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
 		String one = args[0];
 		if (args.length == 0) {
 			System.out.println("Es obligatorio pasar la ruta del archivo de prueba como parámetro");
 		} else {
-			rules lexico = null;
+			AnalizadorLexico lexico = null;
 			try {
-				lexico = new rules(new java.io.FileReader(args[0]));
+				lexico = new AnalizadorLexico(new java.io.FileReader(args[0]));
 			} catch (FileNotFoundException e1) {
 				e1.printStackTrace();
 			}
 			@SuppressWarnings("deprecation")
 			sintactico sintaxis = new sintactico(lexico);
-			System.out.println(sintaxis.pgr.size());
+			sintaxis.parse();
+			System.out.println(sintaxis.pgr.get(0).programa);
 			try {
 
 				/// ESTA ES LA INSTANCIA DONDE CON LA SINTAXIS CARGADA GENERO LA TARDUCCION

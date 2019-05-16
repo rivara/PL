@@ -1,1 +1,1 @@
-programa
+program amigo ;

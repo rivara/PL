@@ -38,18 +38,27 @@ parser code {:
 	
 	
 //DECLARACION DE TERMINALES
-	terminal String PROGRAM,FUNCTION,PROCEDURE, BEGIN,END,VAR,OPEN_PARENTESIS,CLOSE_PARENTESIS,POINT_SEMICOLON,
+	/*terminal String PROGRAM,FUNCTION,PROCEDURE, BEGIN,END,VAR,OPEN_PARENTESIS,CLOSE_PARENTESIS,POINT_SEMICOLON,
 	 SEMICOLON,EQUAL,DOUBLE_COLON,CONST,IDENTIFIER,NUMERIC_REAL_CONST,POINT,
-	 NUMERIC_INTEGER_CONST,STRING_CONST,VACIO,MOD,MULTIPLICACION,PLUS,DIV,MINUS;
+	 NUMERIC_INTEGER_CONST,STRING_CONST,VACIO,MOD,MULTIPLICACION,PLUS,DIV,MINUS;*/
+	 
+	 terminal  String PROGRAM,IDENT ,POINT_SEMICOLON;
+	 /* _if, _else, _while, _do, _until, _for, 
+	negacion, and, or, igualdad, menorIgual, mayorIgual, mayor, menor, 
+	_define, suma, resta, Tvoid, Tint, Tfloat, _return, 
+	constint, constlit, constfloat, 
+	llaveAbierta, llaveCerrada, parentesisAbierto, parentesisCerrado, 
+	coma, multiplicacion, division, modulo, asignacion, puntoYComa, ident;*/
+	 
 	 
 
 //NO TERMINALES
 	non terminal Programa BLQ,PRG;
-	non terminal Sentencia SENTLIST,SENT,ASIG,SUBPARAMLIST,PROC_CALL;
+	/*non terminal Sentencia SENTLIST,SENT,ASIG,SUBPARAMLIST,PROC_CALL;
 	non terminal Funcion DCLLIST,DCL,DEFCTE,DEFVAR,DEFPROC,DEFFUN,FORMAL_PARAMLIST;
 	non terminal SubSentencia FACTOR,EXPLIST;
 	non terminal SubFuncion CTELIST,DEFVARLIST,VARLIST,FORMAL_PARAM;
-	non terminal Simbolo  OP,TBAS,OPARIT,ID,SIMPVALUE,EXP;
+	non terminal Simbolo  OP,TBAS,OPARIT,ID,SIMPVALUE,EXP;*/
 
 
 	
@@ -58,28 +67,24 @@ parser code {:
 	
 	
 /*ORDENAMIENTO (rompe ambigüedad de jerarquia)*/
-	precedence left OPEN_PARENTESIS,CLOSE_PARENTESIS, PLUS, MINUS,MULTIPLICACION,DIV,MOD;
+	//precedence left OPEN_PARENTESIS,CLOSE_PARENTESIS, PLUS, MINUS,MULTIPLICACION,DIV,MOD;
 	
 //GRAMATICA
 //ASIGNACIONES
 // quitar blq y añadir ""a ver si lo reconoce asi	
 start with PRG;
 
-PRG ::= PROGRAM:p IDENTIFIER:id POINT_SEMICOLON:ps  BLQ:b  POINT:pt{: 
+PRG ::= PROGRAM:p IDENT:id  POINT_SEMICOLON:ps{:
 	Programa programa = new Programa();
-	programa.programa =p;
- 	programa.identificador=id;
-	programa.puntocoma=";";
-	//programa.blq= b.blq;
-	programa.punto=".";
-    parser.cont++;
-	// AQUI AGREGO EL ARRYLIST DE PROGRAMAS
-	pgr.add(programa);
-	// VERSION PEDRO
-	//Programa.generarFichero(p.imprimir().toString());
+	programa.programa = "program";
+	programa.identificador = id;
+	programa.puntocoma = ";";
+	pgr.add(ps);
+	pgr.add(id);
+	pgr.add(p);
 	RESULT =programa;:}  //procesarFor(p.toString());:} 
 	;
-
+/*
 BLQ ::= DCLLIST:dc BEGIN:b SENTLIST:sl END:e{:
 	Programa bloque = new Programa();
 	bloque.dclLista=dc.dclLista;
@@ -481,6 +486,6 @@ BLQ ::= DCLLIST:dc BEGIN:b SENTLIST:sl END:e{:
  			sentencia.proc_call = s.proc_call;
 			RESULT =sentencia; :}
 	;
-	
+	*/
 	
 	
