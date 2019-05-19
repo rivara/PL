@@ -1,5 +1,5 @@
 program amigo;
-function algo (nume:INTEGER):INTEGER;
+procedure algo (nume:INTEGER);
 begin
  pruab := 3;
 end;

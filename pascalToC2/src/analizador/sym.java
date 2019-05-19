@@ -8,17 +8,63 @@ package analizador;
 /** CUP generated class containing symbol constants. */
 public class sym {
   /* terminals */
-  public static final int POINT_SEMICOLON = 4;
-  public static final int error = 1;
+  public static final int CLOSE_PARENTESIS = 11;
+  public static final int PROCEDURE = 21;
+  public static final int MOD = 14;
+  public static final int STRING_CONST = 13;
+  public static final int NUMERIC_INTEGER_CONST = 12;
+  public static final int MULTIPLICACION = 15;
+  public static final int SEMICOLON = 19;
   public static final int IDENT = 3;
-  public static final int EOF = 0;
+  public static final int PLUS = 16;
+  public static final int EQUAL = 27;
+  public static final int END = 7;
+  public static final int POINT = 6;
+  public static final int FUNCTION = 22;
+  public static final int OPEN_PARENTESIS = 10;
   public static final int PROGRAM = 2;
+  public static final int BEGIN = 5;
+  public static final int EOF = 0;
+  public static final int POINT_SEMICOLON = 4;
+  public static final int DIV = 17;
+  public static final int MINUS = 18;
+  public static final int CONST = 20;
+  public static final int error = 1;
+  public static final int NUMERIC_REAL_CONST = 9;
+  public static final int DOUBLE_COLON = 23;
+  public static final int INTEGER = 25;
+  public static final int REAL = 26;
+  public static final int DOUBLEPOINTEQUAL = 8;
+  public static final int VAR = 24;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
   "PROGRAM",
   "IDENT",
-  "POINT_SEMICOLON"
+  "POINT_SEMICOLON",
+  "BEGIN",
+  "POINT",
+  "END",
+  "DOUBLEPOINTEQUAL",
+  "NUMERIC_REAL_CONST",
+  "OPEN_PARENTESIS",
+  "CLOSE_PARENTESIS",
+  "NUMERIC_INTEGER_CONST",
+  "STRING_CONST",
+  "MOD",
+  "MULTIPLICACION",
+  "PLUS",
+  "DIV",
+  "MINUS",
+  "SEMICOLON",
+  "CONST",
+  "PROCEDURE",
+  "FUNCTION",
+  "DOUBLE_COLON",
+  "VAR",
+  "INTEGER",
+  "REAL",
+  "EQUAL"
   };
 }
 

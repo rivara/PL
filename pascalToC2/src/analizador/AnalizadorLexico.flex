@@ -18,53 +18,44 @@ import java_cup.runtime.*;
 
 letras =[A-Za-z]+
 identificador ={letras}({letras}|[0-9]+|"_")*
+numeric_real_const = [+|-]? [0-9]+ "." [0-9]+  | [0-9]+ [e|E] [+|-]? [0-9]+  | [+|-]? [0-9]+ "." [0-9]+ [e|E] [+|-]? [0-9]+
+string_const=[\u0027][^\n\r]+[\u0027]
 numeric_integer_const = [+|-]? [0-9]+
-punto=[+|-]?([0-9]+)"."([0-9]+)
-exponencial=([0-9]+)[e|E][+|-]?[0-9]+
-mixto= punto [e|E][+|-]?[0-9]+
-numeric_real_const =({punto}|{exponencial}|{mixto})
-
 %%
 
 /*DETECCIÓN DEL IF, DO UNTIL, WHILE y FOR*/
+"begin" 	{return new Symbol(sym.BEGIN);}
+"end" 		{return new Symbol(sym.END);}
 "program" 	{return new Symbol(sym.PROGRAM);}
-";" {return new Symbol(sym.POINT_SEMICOLON);}
-
-
-
-/*DETECCIÓN DE EXPRESIONES CONDICIONALES*/
-
-
-/* DETECCIÓN DEL DEFINE */
-
-/*DETECCIÓN DE TIPOS */
-
+"var" 		{return new Symbol(sym.VAR);}
+"const" 	{return new Symbol(sym.CONST);}
+"function" 	{return new Symbol(sym.FUNCTION);}
+"procedure"	{return new Symbol(sym.PROCEDURE);}
+"INTEGER"	{return new Symbol(sym.INTEGER);}
+"REAL"		{return new Symbol(sym.REAL);}
+";" 		{return new Symbol(sym.POINT_SEMICOLON);}
+"." 		{return new Symbol(sym.POINT);}
+"," 		{return new Symbol(sym.SEMICOLON);}
+":=" 		{return new Symbol(sym.DOUBLEPOINTEQUAL);}
+"=" 		{return new Symbol(sym.EQUAL);}
+":" 		{return new Symbol(sym.DOUBLE_COLON);}
+"(" 		{return new Symbol(sym.OPEN_PARENTESIS);}
+")" 		{return new Symbol(sym.CLOSE_PARENTESIS);}
+"+" 		{return new Symbol(sym.PLUS);}
+"-" 		{return new Symbol(sym.MINUS);}
+"*" 		{return new Symbol(sym.MULTIPLICACION);}
+"div" 		{return new Symbol(sym.DIV);}
+"mod" 		{return new Symbol(sym.MOD);}
 
 
 /*INDENTIFICADORES*/
-{identificador} { return new Symbol(sym.IDENT, yyline + 1, yycolumn +1, yytext());}
-
-/*CONSTANTES ENTERAS*/
-
-/*CONSTANTES LITERALES*/
-
-/*DETECCIÓN DE COMENTARIOS */
+{identificador}  		{return new Symbol(sym.IDENT, yyline + 1, yycolumn +1, yytext());}
 
 
-/* DETECCIÓN DE LLAVES */
-
-
-/* DETECCIÓN DE PARÉNTESIS */
-
-
-
-
-
-/*DETECCIÓN DE LA COMA */
-
-
-
-/*DETECCIÓN DE ;*/
+/*CONSTANTES*/
+{numeric_real_const}  	{return new Symbol(sym.NUMERIC_REAL_CONST, new String(yytext())); } 
+{numeric_integer_const} {return new Symbol(sym.NUMERIC_INTEGER_CONST, new String(yytext())); } 
+{string_const} 			{return new Symbol(sym.STRING_CONST, new String(yytext())); } 
 
 
 

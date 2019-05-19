@@ -8,7 +8,14 @@
 
 //CONTROL DE ERRORES 
 parser code {:
- 	public static ArrayList<String> pgr = new ArrayList<String>(); 
+ 	public static ArrayList<Programa> pgrArray = new ArrayList<Programa>(); 
+	public static ArrayList<Programa> blqArray = new ArrayList<Programa>(); 
+	public static ArrayList<Sentencia> sentArray = new ArrayList<Sentencia>();
+	public static ArrayList<SubSentencia> subsentArray = new ArrayList<SubSentencia>();
+    public static ArrayList<ArrayList<SubSentencia>>expListArray = new ArrayList<ArrayList<SubSentencia>>();
+	public static ArrayList<Funcion> funArray = new ArrayList<Funcion>(); 
+	public static ArrayList<SubFuncion> subfunArray = new ArrayList<SubFuncion>(); 
+
   	public static ArrayList<String> ErroresSintacticos=new ArrayList<String>();
 	public int cont = 0;
 	   
@@ -16,7 +23,7 @@ parser code {:
 
     /**Metodo al que se llama automÃ¡ticamente ante algÃºn error sintactico.*/
     public void syntax_error(Symbol s){
-        System.out.println("Error en la LÃ­nea " + (s.right+1) +" Columna "+s.left+ ". Identificador "
+        System.out.println("Error en la Linea " + (s.right+1) +" Columna "+s.left+ ". Identificador "
         +s.value + " no reconocido." );
      ErroresSintacticos.add("Error Sintactico: "+s.value.toString()+" Linea: "+(s.right+1)+";");
     }
@@ -30,376 +37,272 @@ parser code {:
         s.value + " no reconocido.");
  ErroresSintacticos.add("Error Sintactico: "+s.value.toString()+" Linea: "+(s.right+1)+";");
     }
-
-
-
-
 :};
 	
+
 	
 //DECLARACION DE TERMINALES
 	/*terminal String PROGRAM,FUNCTION,PROCEDURE, BEGIN,END,VAR,OPEN_PARENTESIS,CLOSE_PARENTESIS,POINT_SEMICOLON,
 	 SEMICOLON,EQUAL,DOUBLE_COLON,CONST,IDENTIFIER,NUMERIC_REAL_CONST,POINT,
 	 NUMERIC_INTEGER_CONST,STRING_CONST,VACIO,MOD,MULTIPLICACION,PLUS,DIV,MINUS;*/
 	 
-	 terminal  String PROGRAM,IDENT ,POINT_SEMICOLON;
-	 /* _if, _else, _while, _do, _until, _for, 
-	negacion, and, or, igualdad, menorIgual, mayorIgual, mayor, menor, 
-	_define, suma, resta, Tvoid, Tint, Tfloat, _return, 
-	constint, constlit, constfloat, 
-	llaveAbierta, llaveCerrada, parentesisAbierto, parentesisCerrado, 
-	coma, multiplicacion, division, modulo, asignacion, puntoYComa, ident;*/
+	 terminal  String PROGRAM,IDENT ,POINT_SEMICOLON,BEGIN,POINT,END,
+	 DOUBLEPOINTEQUAL,NUMERIC_REAL_CONST,OPEN_PARENTESIS,CLOSE_PARENTESIS,
+	 NUMERIC_INTEGER_CONST,STRING_CONST,MOD,MULTIPLICACION,PLUS,DIV,MINUS,SEMICOLON,CONST,
+	 PROCEDURE,FUNCTION,DOUBLE_COLON,VAR,INTEGER,REAL,EQUAL;
+
 	 
 	 
 
 //NO TERMINALES
 	non terminal Programa BLQ,PRG;
-	/*non terminal Sentencia SENTLIST,SENT,ASIG,SUBPARAMLIST,PROC_CALL;
-	non terminal Funcion DCLLIST,DCL,DEFCTE,DEFVAR,DEFPROC,DEFFUN,FORMAL_PARAMLIST;
-	non terminal SubSentencia FACTOR,EXPLIST;
+	non terminal Sentencia SENT,ASIG,PROC_CALL,ID;
+	non terminal ArrayList<Sentencia> SENTLIST;
+	non terminal ArrayList<SubSentencia> EXP ;
+	non terminal ArrayList<ArrayList<SubSentencia>> EXPLIST;
+	non terminal SubSentencia OP,FACTOR;
+	non terminal Funcion DCL,DEFCTE,DEFVAR,DEFPROC,DEFFUN;
+	non terminal ArrayList<Funcion> DCLLIST,CTELIST,DEFVARLIST;
+	non terminal SubFuncion	FORMAL_PARAMLIST,TBAS ;
+	non terminal ArrayList<SubFuncion> FORMAL_PARAM,VARLIST;
+	non terminal Simbolo SUBPARAMLIST,SIMPVALUE,OPARIT;
+	
+	
+	/*non terminal SubSentencia FACTOR,EXPLIST;
 	non terminal SubFuncion CTELIST,DEFVARLIST,VARLIST,FORMAL_PARAM;
-	non terminal Simbolo  OP,TBAS,OPARIT,ID,SIMPVALUE,EXP;*/
-
-
+	non terminal Simbolo  OP,TBAS,OPARIT,ID,SIMPVALUE,EXP; */
 	
+	/*ORDENAMIENTO (rompe ambigüedad de jerarquia)*/
+precedence left STRING_CONST ,NUMERIC_REAL_CONST,NUMERIC_INTEGER_CONST;
+precedence left MOD,MULTIPLICACION,PLUS,DIV,MINUS;
 	
-
-	
-	
-/*ORDENAMIENTO (rompe ambigüedad de jerarquia)*/
-	//precedence left OPEN_PARENTESIS,CLOSE_PARENTESIS, PLUS, MINUS,MULTIPLICACION,DIV,MOD;
-	
+start with PRG;	
 //GRAMATICA
 //ASIGNACIONES
-// quitar blq y añadir ""a ver si lo reconoce asi	
-start with PRG;
 
-PRG ::= PROGRAM:p IDENT:id  POINT_SEMICOLON:ps{:
+PRG ::= PROGRAM:p IDENT:id POINT_SEMICOLON:ps BLQ:b  POINT:pt{:
 	Programa programa = new Programa();
 	programa.programa = "program";
 	programa.identificador = id;
 	programa.puntocoma = ";";
-	pgr.add(ps);
-	pgr.add(id);
-	pgr.add(p);
-	RESULT =programa;:}  //procesarFor(p.toString());:} 
-	;
-/*
-BLQ ::= DCLLIST:dc BEGIN:b SENTLIST:sl END:e{:
+	pgrArray.add(programa);
+	RESULT =programa;:} 
+;
+
+BLQ ::=DCLLIST:dc BEGIN:b SENTLIST:s END:e{:
 	Programa bloque = new Programa();
-	bloque.dclLista=dc.dclLista;
-	bloque.empieza =b;
-	bloque.esEmpieza = true;
-	bloque.sentLista=sl.sentLista;
-	bloque.fin =e;
-	bloque.esFin = true;
+    bloque.empieza=b;
+	bloque.fin=e;
+    blqArray.add(bloque);
 	RESULT =bloque; :} 
 	;
 	
+/// PARTE1
+/////////////////////// parte 1
+
+DCLLIST ::=  DCLLIST:dcl DCL:dc{: 
+		RESULT=funArray;:} |;
 	
-	DCLLIST ::=  DCLLIST:dcl DCL:dc {: 
-	Funcion function = new Funcion();
-	function.dclLista.add(dc);
-	function.dclLista.addAll(dcl.dclLista);
-	RESULT = function;
-	:} |VACIO|;
 	
-	SENTLIST ::= SENT:s {: 
-	Programa p=new Programa();
-	Sentencia sentencia = new Sentencia();
-	p.sentLista.add(s);
-	RESULT = sentencia;
-	 :}
-	|SENTLIST:sl SENT:s {: 
-	Programa p=new Programa();
-	Sentencia sentencia = new Sentencia();
-	p.sentLista.add(s);
-	p.sentLista.addAll(sl.sentLista);
-	RESULT = sentencia;
- :} 
-	;
-	DCL ::=DEFCTE:d {: 
-		   	Funcion defcte=new Funcion();;
-			defcte=d;
-			RESULT =defcte; :}  
+
+DCL ::=DEFCTE:d {: 
+			RESULT =d; :}  
 		|DEFVAR:dv {:
-	 		Funcion defvar=new Funcion();;
-			defvar=dv;
-			RESULT = defvar; :} 
-		| DEFPROC:dp{: 
-			Funcion defproc=new Funcion();;
-			defproc=dp;
-			RESULT =defproc; :} 
+			RESULT = dv; :} 
+		| DEFPROC:dp{:
+			RESULT =dp; :} 
 		| DEFFUN:df{: 
-			Funcion defvar=new Funcion();;
-			defvar=df;
-			RESULT =defvar; :} 
+			RESULT =df; :} 
 	;	
 	
 	
+///////////////////////////////////////////////////////////// VARIABLES	
+		DEFVAR ::= VAR:v DEFVARLIST POINT_SEMICOLON:p  {: 
+			Funcion defvar = new Funcion();
+			defvar.variable=v;
+			funArray.add(defvar);
+			RESULT =defvar;  :} 
+	;
+
+
+
+
+		DEFVARLIST ::= VARLIST:v DOUBLE_COLON:d TBAS:t  {:
+			Funcion defvarlist = new Funcion();
+			defvarlist.dosPuntos = d;
+			defvarlist.tbas=t.tbas;
+			funArray.add(defvarlist);
+			RESULT = funArray;   :}	
+	| DEFVARLIST:dl POINT_SEMICOLON:p VARLIST:v DOUBLE_COLON:d TBAS:t  {:
+			Funcion defvarlist = new Funcion();
+		
+			defvarlist.dosPuntos = d;
+			defvarlist.tbas=t.tbas;
+			funArray.add(defvarlist);  
+			funArray.addAll(dl);
+			RESULT = funArray; :} 
+			;
+
+	VARLIST ::= IDENT:i  {: 
+			SubFuncion subfuncion = new SubFuncion();
+			subfuncion.identificador = i;
+			subfunArray.add(subfuncion);
+			RESULT =subfunArray; :}
+	| IDENT:i  SEMICOLON:s VARLIST:v  {:
+			SubFuncion subfuncion = new SubFuncion();
+			subfuncion.identificador = i;
+			subfuncion.coma = s;
+			subfunArray.add(subfuncion);
+			subfunArray.addAll(v);
+       		RESULT =subfunArray;  :}
+	;
+	
+	
+
+	TBAS ::= INTEGER {: 
+			SubFuncion tbas= new SubFuncion();
+			tbas.entero ="integer";
+			subfunArray.add(tbas);
+			RESULT =tbas; :}
+	| REAL {: 
+			SubFuncion tbas= new SubFuncion();
+			tbas.real ="real";
+			subfunArray.add(tbas);	
+			RESULT =tbas;  :}
+	;
+	
+	
+	
+	
+///////////////////////////////////////////////////////////// CONSTANTES	
 	
 	
 	DEFCTE ::=CONST:cons CTELIST:ct {: 
 			Funcion defcte=new Funcion();
-			SubFuncion subfuncion =new SubFuncion();
-			defcte.constante = cons;
-			defcte.esConstante = true;
-			subfuncion.cteLista=ct.cteLista;
 			RESULT = defcte; :} 
 	;
 	
+		
+	
+	CTELIST ::= IDENT:i EQUAL:e SIMPVALUE:s POINT_SEMICOLON:ps{: 
+				Funcion ctelist = new Funcion();
+				ctelist.identificador = i;
+				ctelist.igual = e;
+				ctelist.simpvalue = s.simpvalue;
+				ctelist.puntocoma = ps;
+				funArray.add(ctelist);
+				RESULT = funArray;  :} 
+	|CTELIST:cl IDENT:i EQUAL:e SIMPVALUE:s  POINT_SEMICOLON:ps{: 
+				Funcion ctelist = new Funcion();
+				ctelist.identificador = i;
+				ctelist.igual = e;
+				ctelist.simpvalue = s.simpvalue;
+				ctelist.puntocoma = ps;
+				funArray.add(ctelist);
+				funArray.addAll(cl);
+				RESULT = funArray; :} 
+	;
+	
 
-	CTELIST ::= IDENTIFIER:i EQUAL:e SIMPVALUE:s POINT_SEMICOLON:ps{: 
-				Funcion funcion = new Funcion();
-				SubFuncion subfuncion = new SubFuncion();
-				Simbolo simbolo= new Simbolo();
-				simbolo.identificador = i;
-				simbolo.esIdenoicador = true;
-				simbolo.igual = e;
-				simbolo.esIgual = true;
-				simbolo.simpvalue = s.simpvalue;
-				simbolo.puntocoma = ps;
-				simbolo.esPuntocoma = true;
-				subfuncion.cteLista.add(simbolo);
-				RESULT = subfuncion;  :} 
-	|CTELIST:cl IDENTIFIER:i EQUAL:e SIMPVALUE:s  POINT_SEMICOLON:ps{: 
-				Funcion funcion = new Funcion();
-				SubFuncion subfuncion = new SubFuncion();
-				Simbolo simbolo= new Simbolo();
-				simbolo.identificador = i;
-				simbolo.esIdenoicador = true;
-				simbolo.igual = e;
-				simbolo.esIgual = true;
-				simbolo.simpvalue = s.simpvalue;
-				simbolo.puntocoma = ps;
-				simbolo.esPuntocoma = true;
-				subfuncion.cteLista.add(simbolo);
-				subfuncion.cteLista.addAll(cl.cteLista);
-				RESULT = subfuncion; :} 
+///////////////////////////////////////////////////////////// PROCEDIMIENTOS	
+	
+
+	DEFPROC ::= PROCEDURE:p IDENT:i FORMAL_PARAMLIST:fo POINT_SEMICOLON:ps1 BLQ:b POINT_SEMICOLON:ps2{:
+  			Funcion defproc = new Funcion();
+			defproc.procedimiento = p;
+			defproc.identificador = i;
+			funArray.add(defproc);
+			RESULT = defproc;:} 
 	;
 	
 	
-	
-	
-	SIMPVALUE ::= NUMERIC_INTEGER_CONST:ni {:
-			Simbolo integer= new Simbolo();
-			integer.numericoEnteroConstante =ni;
-			integer.esNumericoEnteroConstante=true;			
-			RESULT =integer; :}
-	 		
-			| NUMERIC_REAL_CONST:nr {: 
-			Simbolo real= new Simbolo();
-			real.numericoRealConstante =nr;
-			real.esNumericoRealConstante=true;	
-			RESULT =real; :}
-			
-			| STRING_CONST:sc  {: 
-			Simbolo constante= new Simbolo();
-			constante.textoconstante =sc;
-			constante.esTextoconstante=true;	
-			RESULT =constante; :}
+
+	FORMAL_PARAMLIST ::= OPEN_PARENTESIS:o FORMAL_PARAM:f CLOSE_PARENTESIS:c {:
+			SubFuncion formalParam= new SubFuncion();
+			RESULT = formalParam;:}|
 	;
 	
-//ASIGNA
-	DEFVAR ::= VAR:v DEFVARLIST:d POINT_SEMICOLON:p  {: 
-			Funcion funcion = new Funcion();
-			Simbolo simbolo = new Simbolo();
-			simbolo.variable = v;
-			simbolo.esVariable = true;
-			simbolo.devarlista = d.devarlista;
-			simbolo.puntocoma = p;
-			simbolo.esPuntocoma = true;
-			RESULT =funcion;  :} 
-	;
-	
-	
-	
-////////////////// AGREGA	
-	DEFVARLIST ::= VARLIST:v DOUBLE_COLON:d TBAS:t  {:
-			SubFuncion subfuncion = new SubFuncion();
-			Simbolo simbolo = new Simbolo();
-			simbolo.varLista=v.varLista;
-			simbolo.dosPuntos = d;
-			simbolo.esDosPuntos =true;
-			simbolo.tbas=t.tbas;
-			subfuncion.defvarLista.add(simbolo);
-			RESULT = subfuncion;  :}	
-	| DEFVARLIST:dl POINT_SEMICOLON:p VARLIST:v DOUBLE_COLON:d TBAS:t  {:
-			SubFuncion subfuncion = new SubFuncion();
-			Simbolo simbolo = new Simbolo();
-			simbolo.puntocoma = p;
-			simbolo.esPuntocoma = true;
-			simbolo.varLista=v.varLista;
-			simbolo.dosPuntos = d;
-			simbolo.esDosPuntos =true;
-			subfuncion.defvarLista.add(simbolo);
-			subfuncion.defvarLista.addAll(dl.defvarLista);
-			subfuncion.cteLista.add(subfuncion);
-			subfuncion.defvarLista.addAll(dl.defvarLista);
-			RESULT = subfuncion; :} 
-			;
 
 
-////////////////// AGREGA
-	VARLIST ::= IDENTIFIER:i  {: 
-			SubFuncion subfuncion = new SubFuncion();
-			Simbolo simbolo= new Simbolo();	
-			simbolo.identificador =i;
-			simbolo.esIdentificador=true;
-			subfuncion.varLista.add(simbolo);		
-       		RESULT =subfuncion; :}
-	| IDENTIFIER:i  SEMICOLON:s VARLIST:v  {:
-			SubFuncion subfuncion = new SubFuncion();
-			Simbolo simbolo = new Simbolo();
-			simbolo.identificador = i;
-			simbolo.esIdentificador = true;
-			simbolo.coma = s;
-			simbolo.esComa = true;
-			subfuncion.varLista.add(simbolo);
-			subfuncion.varLista.addAll(v.varLista);
-       		RESULT =subfuncion; :}
-	;
+	FORMAL_PARAM ::= VARLIST:v DOUBLE_COLON:d  TBAS:t {:
+			SubFuncion formalParam= new SubFuncion();
+			subfunArray.add(formalParam);
+		 	RESULT =subfunArray;  :} 
+	| VARLIST:v DOUBLE_COLON:d TBAS:t  POINT_SEMICOLON:ps FORMAL_PARAM:fp {: 
+			SubFuncion formalParam= new SubFuncion();
+			subfunArray.add(formalParam);
+			subfunArray.addAll(fp);
+			RESULT =subfunArray;  :} ;
 	
-////////////////// ASIGNA
-	DEFPROC ::= PROCEDURE:p IDENTIFIER:i FORMAL_PARAMLIST:fo POINT_SEMICOLON:ps1 BLQ:b POINT_SEMICOLON:ps2{:
-  			Funcion funcion = new Funcion();
-			funcion.procedimiento = p;
-			funcion.esProcedimiento = true;
-			funcion.identificador = i;
-			funcion.esIdentificador = true;
-			funcion.formal_paramLista = fo.formal_paramLista;
-			funcion.puntocoma = ps1;
-			funcion.esPuntocoma = true;
-			Programa bloque = new Programa();
-			bloque = b;
-			funcion.puntocoma = ps2;
-			funcion.esPuntocoma = true;
-			RESULT = funcion;:} 
-	;
 	
-////////////////// ASIGNA
-	DEFFUN ::= FUNCTION:f IDENTIFIER:i FORMAL_PARAMLIST:fo DOUBLE_COLON:d TBAS:t POINT_SEMICOLON:p1 BLQ:b POINT_SEMICOLON:p2{: 
+	
+///////////////////////////////////////////////////////////// FUNCIONES
+
+	DEFFUN ::= FUNCTION:f IDENT:i FORMAL_PARAMLIST:fo DOUBLE_COLON:d TBAS:t POINT_SEMICOLON:p1 BLQ:b POINT_SEMICOLON:p2{: 
 	  		Funcion funcion = new Funcion();
-			funcion.funcion = f;
-			funcion.esFuncion = true;
-			funcion.identificador = i;
-			funcion.esIdentificador = true;
-			funcion.formal_paramLista = fo.formal_paramLista;
-			funcion.dosPuntos = d;
-			funcion.esDosPuntos = true;
-			funcion.tbas = t.tbas;
-			funcion.puntocoma = p1;
-			funcion.esPuntocoma = true;
-			Programa bloque = new Programa();
-			bloque = b;
-			funcion.puntocoma = p2;
-			funcion.esPuntocoma = true;
 			RESULT =funcion; :} 
 	;
-	
-	
-////////////////// ASIGNA
-	FORMAL_PARAMLIST ::= OPEN_PARENTESIS:o FORMAL_PARAM:f CLOSE_PARENTESIS:c {:
-			Funcion funcion = new Funcion(); 
-			funcion.abreParenteis =o;
-			funcion.esAbreParenteis=true;	
-			funcion.cierraParentesis =c;
-			funcion.esCierraParentesis=true;	
-			SubFuncion subfuncion= new SubFuncion();
-			subfuncion.formal_param=f.formal_param;
-			funcion.cierraParentesis =o;
-			funcion.esCierraParentesis=true;:} |VACIO|
-	;
-	
 
-/////////////////AGREGA hay bucle	
-	FORMAL_PARAM ::= VARLIST:v DOUBLE_COLON:d  TBAS:t {:
-			SubFuncion subfuncion= new SubFuncion();
-			Simbolo simbolo= new Simbolo();
-			simbolo.varLista=v.varLista;
-			simbolo.dosPuntos =d;
-			simbolo.esDosPuntos=true;
-			simbolo.tbas=t.tbas;
-			subfuncion.formal_param.add(subfuncion);
-		 	RESULT =subfuncion;  :} 
-	| VARLIST:v DOUBLE_COLON:d TBAS:t  POINT_SEMICOLON:ps FORMAL_PARAM:f {: 
-			SubFuncion subfuncion= new SubFuncion();
-			Simbolo simbolo= new Simbolo();
-			simbolo.dosPuntos =d;
-			simbolo.esDosPuntos=true;
-			simbolo.tbas=t.tbas;
-			simbolo.puntocoma=ps;
-			simbolo.esPuntocoma=true;
-			subfuncion.formal_param.add(subfuncion);
-			subfuncion.formal_param.addAll(f.formal_param);
-			RESULT =subfuncion;  :} ;
 	
-	
-	//ASIGNA
-	TBAS ::= NUMERIC_INTEGER_CONST:n {: 
-			Simbolo simbolo= new Simbolo();
-			simbolo.numericoEnteroConstante =n;
-			simbolo.esNumericoEnteroConstante=true;	
-			RESULT =simbolo; :}
-	| NUMERIC_REAL_CONST:r {: 
-			Simbolo simbolo= new Simbolo();
-			simbolo.real =r;
-			simbolo.esReal=true;	
-			RESULT =simbolo;  :}
+// PARTE 2 PRINICPAL	
+
+	SENTLIST ::= SENT:s {: 
+	Programa p=new Programa();
+	sentArray.add(s);
+	RESULT = sentArray;
+	 :}
+	|SENTLIST:sl SENT:s {: 
+	sentArray.add(s);
+	sentArray.addAll(sl);
+	RESULT = sentArray;
+ :} 
+ ;
+
+
+SENT ::= ASIG:a  POINT_SEMICOLON:ps{: 
+		Sentencia sentenc=new Sentencia();
+		sentenc.puntocoma=ps;
+		sentArray.add(sentenc);
+		RESULT =sentenc; :}
+|PROC_CALL:pc POINT_SEMICOLON:ps{: 
+		Sentencia sentenc=new Sentencia();
+		sentenc.dosPuntos=ps;
+		sentArray.add(sentenc);
+		RESULT =sentenc;  :}
 	;
-	
-	
-///////////////////ASIGNA
-	SENT ::= ASIG:a POINT_SEMICOLON:ps {: 
+
+
+ASIG ::= ID:id DOUBLEPOINTEQUAL:de EXP:e  {: 
 			Sentencia sentencia= new Sentencia();
-			sentencia.asig=a.asig;
-			sentencia.puntocoma =ps;
-			sentencia.esPuntocoma=true;
-			RESULT =sentencia; :}
-	| PROC_CALL:p POINT_SEMICOLON:ps {: 
-			Sentencia sentencia= new Sentencia();
-			sentencia.proc_call=p.proc_call;
-			sentencia.puntocoma =ps;
-			sentencia.esPuntocoma=true;
-			RESULT =sentencia;  :}
-	;
-	
-////////////////////ASIGNA
-	ASIG ::= ID:i POINT_SEMICOLON:ps EXP:e {: 
-			Sentencia sentencia= new Sentencia();
-			sentencia.puntocoma =ps;
-			sentencia.esPuntocoma=true;
-			SubSentencia subsentencia = new SubSentencia();
-			subsentencia.exp=i.exp;
-			RESULT =sentencia; :}
-	;
-////////////////////ASIGNA
-	ID ::= IDENTIFIER:i {: 
-			Simbolo simbolo= new Simbolo();
-			simbolo.identificador =i;
-			simbolo.esIdentificador=true;
-			RESULT = simbolo; :}
-	;
-////////////////////ASIGNA 
+			RESULT =sentencia; :};
+
+ID ::= IDENT:i{: 
+			Sentencia sent= new Sentencia();
+			sent.identificador =i;
+			sentArray.add(sent);
+			RESULT = sent;  :};			
+
+
 	EXP ::= EXP:e1 OP:o EXP:e2  {: 
 			SubSentencia subsentencia = new SubSentencia();
-			subsentencia.exp.add(e1);
-			subsentencia.op.add(o);
-			subsentencia.exp.add(e2);
-			RESULT=subsentencia;  :}
+			subsentArray.addAll(e1);
+			subsentArray.add(o);
+			subsentArray.addAll(e2);
+			RESULT = subsentArray;
+:}
 	| FACTOR:f  {: 
 			SubSentencia subsentencia  = new SubSentencia();
-			subsentencia.factor.add(f);
-			RESULT =subsentencia; :}
+			subsentArray.add(f);
+			RESULT =subsentArray; :}
 	;
-////////////////////ASIGNA -- rvr
+	
 	OP ::= OPARIT:o  {: 
 			SubSentencia subsentencia = new SubSentencia();
 			subsentencia.op=o.op;
 			RESULT =subsentencia;  :}
 	;
 
-////////////////////ASIGNA
+
 	OPARIT ::= PLUS:p {: 
 			Simbolo simbolo= new Simbolo();
 			simbolo.mas =p;
@@ -433,59 +336,66 @@ BLQ ::= DCLLIST:dc BEGIN:b SENTLIST:sl END:e{:
 	;
 	
 	
-////////////////////ASIGNA 
+ 
 	FACTOR ::= SIMPVALUE:s  {: 
 		SubSentencia subsentencia = new SubSentencia();
-		subsentencia.simpvalue=s.simpvalue;
 		RESULT =subsentencia;  :}
 	| OPEN_PARENTESIS:o EXP:e CLOSE_PARENTESIS:c {:
 			SubSentencia subsentencia = new SubSentencia();
-			subsentencia.abreParenteis =o;
-			subsentencia.esAbreParenteis=true;	
-			subsentencia.cierraParentesis =c;
-			subsentencia.exp= e.exp;
-			subsentencia.esCierraParentesis=true;	 
+			
 			RESULT =subsentencia; :}
-	| IDENTIFIER:i  SUBPARAMLIST:s  {: 
+	| IDENT:i  SUBPARAMLIST:s  {: 
 			SubSentencia subsentencia = new SubSentencia();
-			subsentencia.identificador =i;
-			subsentencia.esIdentificador=true;
-			subsentencia.subparamLista=s.subparamLista;
 			RESULT =subsentencia; 
 	:}
 	;
-////////////////////ASIGNA
-	SUBPARAMLIST ::=  OPEN_PARENTESIS:o EXPLIST:e CLOSE_PARENTESIS:c  {: 
-			Sentencia sentencia= new Sentencia();
-			sentencia.abreParenteis =o;
-			sentencia.esAbreParenteis=true;	
-			sentencia.exp=e.exp;
-			sentencia.cierraParentesis =c;
-			sentencia.esCierraParentesis=true;	 
-			RESULT =sentencia;
-		:}
-		;
 
-////////////////////ASIGNA	
-	EXPLIST ::= EXP:e  {: 
-			SubSentencia subsentencia= new SubSentencia();
-			subsentencia.exp = e.exp;
-			RESULT = subsentencia; :}
-	| EXP:e SEMICOLON:s EXPLIST:ex  {: 
-			SubSentencia subsentencia= new SubSentencia();	
-			subsentencia.coma=s;
-			subsentencia.esComa=true;
-			subsentencia.exp=e.exp;
-			RESULT =subsentencia;  :}
+SIMPVALUE ::= NUMERIC_INTEGER_CONST:ni {:
+			Simbolo integer= new Simbolo();
+			integer.numericoEnteroConstante =ni;
+			integer.esNumericoEnteroConstante=true;			
+			RESULT =integer; :}
+	 		
+			| NUMERIC_REAL_CONST:nr {: 
+			Simbolo real= new Simbolo();
+			real.numericoRealConstante =nr;
+			real.esNumericoRealConstante=true;	
+			RESULT =real; :}
+			
+			| STRING_CONST:sc  {: 
+			Simbolo constante= new Simbolo();
+			constante.textoconstante =sc;
+			constante.esTextoconstante=true;	
+			RESULT =constante; :}
 	;
-	 
-	PROC_CALL ::= IDENTIFIER:i SUBPARAMLIST:s {:
+
+
+PROC_CALL ::= IDENT:i SUBPARAMLIST:s {:
 			Sentencia sentencia= new Sentencia();
 			sentencia.identificador=i;
-			sentencia.esIdentificador=true;
- 			sentencia.proc_call = s.proc_call;
+ 			sentArray.add(sentencia);
 			RESULT =sentencia; :}
+	;	
+	
+SUBPARAMLIST ::=  OPEN_PARENTESIS:o EXPLIST:e CLOSE_PARENTESIS:c {: 
+			Sentencia sentencia= new Sentencia();
+			sentencia.abreParenteis =o;
+			sentencia.cierraParentesis =c;
+			sentArray.add(sentencia);
+			RESULT =sentencia;
+		:}|
+		;
+
+// ARRAY
+EXPLIST ::= EXP:e  {: 
+			expListArray.add(e);
+			RESULT = expListArray;  :}
+	| EXP:e SEMICOLON:s EXPLIST:ex  {: 
+			expListArray.add(e);
+			expListArray.addAll(ex);
+			RESULT =expListArray;  :}
 	;
-	*/
-	
-	
+	 
+
+
+

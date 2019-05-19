@@ -36,6 +36,8 @@ public class Simbolo {
 	public boolean esNumericoRealConstante;
 	public String real;
 	public boolean esReal = false;
+	public String entero;
+	public boolean esEntero = false;
 	public String coma = "";
 	public boolean esComa = false;
 	public String procedimiento = "";
@@ -60,6 +62,6 @@ public class Simbolo {
 	public ArrayList<Simbolo> asig;
 	public ArrayList<Simbolo> subparamLista;
 	public ArrayList<Simbolo> op;
-	public ArrayList<Simbolo> exp;
+	public ArrayList<SubSentencia> exp;
 
 }

@@ -1,65 +1,23 @@
 package analizador;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 
 public class Main {
 
-	// TODO Auto-generated method stu
-	// String codigo = "program Hello;\r\n" + "begin\r\n" + " writeln ('Hello,
-	// world.');\r\n" + " readln;\r\n"
-	// + "end.";
-	// comprueba que el codigo este bien
-	// analizador.checking(codigo);
-	// si checking es igual a nulo no tiene errores y se puede traducir
-	// traduce
+	private static String traductor(ArrayList<Programa> p) {
+		String code = null;
+		// cabecera
+		for (final Programa pr : p) {
+			// Here your room is available
+			System.out.println(pr.identificador);
+		}
+		// blq
 
-	// TRADUCCIOn
-	// private static void translatror(sintactico sintaxis) {
-	// TODO Auto-generated method stub
+		// resto
 
-	// ArrayList<String> codigo = new ArrayList<String>();
-	// LIBRERIAS STANDARD
-	// Programa p = this.checking(code);
-	// System.out.println(p.identificador);
-	// si program es diferente a vacio no teine erroeres
-	// codigo.add("#include <stdio.h>" + p.identificador);
-	// PROGRAM ::= DEFINES PARTES
-
-	// DEFINES ::= LAMBDA | "#define" ident CTES DEFINES
-	// SubFuncion subfuncion = new SubFuncion();
-	// int cuentaCte = subfuncion.cteLista.size();/// add(simbolo);
-	// subfuncion.cteLista.addAll(cl.cteLista);
-
-	/*
-	 * if (cuentaCte == 0) { codigo.add(""); } else // declaracion de variables
-	 * 
-	 * { // int cuentaCte=subfuncion.cteLista.ge;/// add(simbolo);
-	 * 
-	 * for (int i = 0; i < cuentaCte; i++) {
-	 * System.out.println(subfuncion.cteLista.get(i)); }
-	 */
-
-	// }
-
-	// forarch(CTELIST)
-	// codigo.add("#define");
-	// codigo.add("CTELIST.IDENTIFICADOR");
-	// codigo.add("CTELIST.SIMPLEVALUE");
-
-	// CTES ::= constint | constfloat | constlit
-
-	// PARTES ::= PART PARTES | PART
-	// PART ::= TYPE RESTPART
-	// RESTPART ::= ident "(" LISTPARAM ")" BLQ
-	// | ident "(" "void" ")" BLQ
-	// BLQ ::= "{" SENTLIST "}"
-	// LISTPARAM ::= LISTPARAM "," TYPE ident | TYPE ident
-	// TYPE ::= "void" | "int" | "float"
-
-	// String fin = "";
-
-	// return fin;
-//	}
+		return code;
+	}
 
 	public static void main(String[] args) throws Exception {
 
@@ -76,19 +34,13 @@ public class Main {
 			@SuppressWarnings("deprecation")
 			sintactico sintaxis = new sintactico(lexico);
 			sintaxis.parse();
-			System.out.println(sintaxis.pgr.get(0).programa);
-			try {
+//////////////////////////////TRADUCTOR
+			// isntancio elementos
 
-				/// ESTA ES LA INSTANCIA DONDE CON LA SINTAXIS CARGADA GENERO LA TARDUCCION
-				//
-				// toFile(translatror(sintaxis));
-				/// LUEGO SE GENERA EL FICHERO
+			// transformo en el nuevo lenguaje
+			// String c = traductor(cabecera);
 
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-////////////////////////////// TRADUCCION Y GENERACION DEL FICHERO
+////////////////////////////// GENERACION DEL FICHERO
 
 			/*
 			 * try {
