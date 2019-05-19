@@ -10,18 +10,24 @@
 parser code {:
  	public static ArrayList<Programa> pgrArray = new ArrayList<Programa>(); 
 	public static ArrayList<Programa> blqArray = new ArrayList<Programa>(); 
+	// SENTENCIAS	
 	public static ArrayList<Sentencia> sentArray = new ArrayList<Sentencia>();
 	public static ArrayList<SubSentencia> subsentArray = new ArrayList<SubSentencia>();
     public static ArrayList<ArrayList<SubSentencia>>expListArray = new ArrayList<ArrayList<SubSentencia>>();
-	public static ArrayList<Funcion> funArray = new ArrayList<Funcion>(); 
-	public static ArrayList<SubFuncion> subfunArray = new ArrayList<SubFuncion>(); 
+	// DECLARACIONES
+    public static ArrayList<Funcion> dclArray = new ArrayList<Funcion>(); 
+ public static ArrayList<String> prueba = new ArrayList<String>(); 
+	public static ArrayList<SubFuncion> subdclArray = new ArrayList<SubFuncion>(); 
+
+	public static ArrayList<String> prueba = new ArrayList<String>(); 
+
 
   	public static ArrayList<String> ErroresSintacticos=new ArrayList<String>();
 	public int cont = 0;
 	   
 	
 
-    /**Metodo al que se llama automÃ¡ticamente ante algÃºn error sintactico.*/
+    /**Metodo al que se llama automáticamente ante algún error sintactico.*/
     public void syntax_error(Symbol s){
         System.out.println("Error en la Linea " + (s.right+1) +" Columna "+s.left+ ". Identificador "
         +s.value + " no reconocido." );
@@ -30,7 +36,7 @@ parser code {:
 
 
 
-    /**Metodo al que se llama en el momento en que ya no es posible una recuperaciÃ³n de
+    /**Metodo al que se llama en el momento en que ya no es posible una recuperación de
     errores.*/
     public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
         System.out.println("Error en la Linea " + (s.right+1)+ " Columna "+s.left+". Identificador " +
@@ -42,10 +48,6 @@ parser code {:
 
 	
 //DECLARACION DE TERMINALES
-	/*terminal String PROGRAM,FUNCTION,PROCEDURE, BEGIN,END,VAR,OPEN_PARENTESIS,CLOSE_PARENTESIS,POINT_SEMICOLON,
-	 SEMICOLON,EQUAL,DOUBLE_COLON,CONST,IDENTIFIER,NUMERIC_REAL_CONST,POINT,
-	 NUMERIC_INTEGER_CONST,STRING_CONST,VACIO,MOD,MULTIPLICACION,PLUS,DIV,MINUS;*/
-	 
 	 terminal  String PROGRAM,IDENT ,POINT_SEMICOLON,BEGIN,POINT,END,
 	 DOUBLEPOINTEQUAL,NUMERIC_REAL_CONST,OPEN_PARENTESIS,CLOSE_PARENTESIS,
 	 NUMERIC_INTEGER_CONST,STRING_CONST,MOD,MULTIPLICACION,PLUS,DIV,MINUS,SEMICOLON,CONST,
@@ -64,22 +66,20 @@ parser code {:
 	non terminal Funcion DCL,DEFCTE,DEFVAR,DEFPROC,DEFFUN;
 	non terminal ArrayList<Funcion> DCLLIST,CTELIST,DEFVARLIST;
 	non terminal SubFuncion	FORMAL_PARAMLIST,TBAS ;
-	non terminal ArrayList<SubFuncion> FORMAL_PARAM,VARLIST;
+	non terminal ArrayList<SubFuncion> FORMAL_PARAM;
+	non terminal ArrayList<String> VARLIST;
 	non terminal Simbolo SUBPARAMLIST,SIMPVALUE,OPARIT;
 	
 	
-	/*non terminal SubSentencia FACTOR,EXPLIST;
-	non terminal SubFuncion CTELIST,DEFVARLIST,VARLIST,FORMAL_PARAM;
-	non terminal Simbolo  OP,TBAS,OPARIT,ID,SIMPVALUE,EXP; */
+
 	
-	/*ORDENAMIENTO (rompe ambigüedad de jerarquia)*/
+/*ORDENAMIENTO (rompe ambiedad de jerarquia)*/
 precedence left STRING_CONST ,NUMERIC_REAL_CONST,NUMERIC_INTEGER_CONST;
 precedence left MOD,MULTIPLICACION,PLUS,DIV,MINUS;
 	
 start with PRG;	
 //GRAMATICA
 //ASIGNACIONES
-
 PRG ::= PROGRAM:p IDENT:id POINT_SEMICOLON:ps BLQ:b  POINT:pt{:
 	Programa programa = new Programa();
 	programa.programa = "program";
@@ -101,7 +101,7 @@ BLQ ::=DCLLIST:dc BEGIN:b SENTLIST:s END:e{:
 /////////////////////// parte 1
 
 DCLLIST ::=  DCLLIST:dcl DCL:dc{: 
-		RESULT=funArray;:} |;
+		RESULT=dclArray;:} |;
 	
 	
 
@@ -119,42 +119,42 @@ DCL ::=DEFCTE:d {:
 ///////////////////////////////////////////////////////////// VARIABLES	
 		DEFVAR ::= VAR:v DEFVARLIST POINT_SEMICOLON:p  {: 
 			Funcion defvar = new Funcion();
-			defvar.variable=v;
-			funArray.add(defvar);
+			defvar.variable="var";
+			dclArray.add(defvar);
 			RESULT =defvar;  :} 
 	;
 
 
 
-
-		DEFVARLIST ::= VARLIST:v DOUBLE_COLON:d TBAS:t  {:
+    DEFVARLIST ::= VARLIST:v DOUBLE_COLON:d TBAS:t  {:
 			Funcion defvarlist = new Funcion();
+			//defvarlist.varLista.add(prueba);
 			defvarlist.dosPuntos = d;
 			defvarlist.tbas=t.tbas;
-			funArray.add(defvarlist);
-			RESULT = funArray;   :}	
+			dclArray.add(defvarlist);
+			RESULT = dclArray;   :}	
 	| DEFVARLIST:dl POINT_SEMICOLON:p VARLIST:v DOUBLE_COLON:d TBAS:t  {:
 			Funcion defvarlist = new Funcion();
-		
+			//defvarlist.varLista.add(prueba);
 			defvarlist.dosPuntos = d;
 			defvarlist.tbas=t.tbas;
-			funArray.add(defvarlist);  
-			funArray.addAll(dl);
-			RESULT = funArray; :} 
+			dclArray.add(defvarlist);  
+			dclArray.addAll(dl);
+			RESULT = dclArray; :} 
 			;
 
 	VARLIST ::= IDENT:i  {: 
 			SubFuncion subfuncion = new SubFuncion();
-			subfuncion.identificador = i;
-			subfunArray.add(subfuncion);
-			RESULT =subfunArray; :}
+			subfuncion.identificador="ww";
+			prueba.add(i);
+			RESULT =prueba; :}
 	| IDENT:i  SEMICOLON:s VARLIST:v  {:
 			SubFuncion subfuncion = new SubFuncion();
-			subfuncion.identificador = i;
-			subfuncion.coma = s;
-			subfunArray.add(subfuncion);
-			subfunArray.addAll(v);
-       		RESULT =subfunArray;  :}
+			subfuncion.identificador = "ee";
+			prueba.add(i);
+			prueba.addAll(v);
+
+       		RESULT =prueba;  :}
 	;
 	
 	
@@ -162,12 +162,12 @@ DCL ::=DEFCTE:d {:
 	TBAS ::= INTEGER {: 
 			SubFuncion tbas= new SubFuncion();
 			tbas.entero ="integer";
-			subfunArray.add(tbas);
+			subdclArray.add(tbas);
 			RESULT =tbas; :}
 	| REAL {: 
 			SubFuncion tbas= new SubFuncion();
 			tbas.real ="real";
-			subfunArray.add(tbas);	
+			subdclArray.add(tbas);	
 			RESULT =tbas;  :}
 	;
 	
@@ -190,17 +190,17 @@ DCL ::=DEFCTE:d {:
 				ctelist.igual = e;
 				ctelist.simpvalue = s.simpvalue;
 				ctelist.puntocoma = ps;
-				funArray.add(ctelist);
-				RESULT = funArray;  :} 
+				dclArray.add(ctelist);
+				RESULT = dclArray;  :} 
 	|CTELIST:cl IDENT:i EQUAL:e SIMPVALUE:s  POINT_SEMICOLON:ps{: 
 				Funcion ctelist = new Funcion();
 				ctelist.identificador = i;
 				ctelist.igual = e;
 				ctelist.simpvalue = s.simpvalue;
 				ctelist.puntocoma = ps;
-				funArray.add(ctelist);
-				funArray.addAll(cl);
-				RESULT = funArray; :} 
+				dclArray.add(ctelist);
+				dclArray.addAll(cl);
+				RESULT = dclArray; :} 
 	;
 	
 
@@ -211,7 +211,7 @@ DCL ::=DEFCTE:d {:
   			Funcion defproc = new Funcion();
 			defproc.procedimiento = p;
 			defproc.identificador = i;
-			funArray.add(defproc);
+			dclArray.add(defproc);
 			RESULT = defproc;:} 
 	;
 	
@@ -226,13 +226,13 @@ DCL ::=DEFCTE:d {:
 
 	FORMAL_PARAM ::= VARLIST:v DOUBLE_COLON:d  TBAS:t {:
 			SubFuncion formalParam= new SubFuncion();
-			subfunArray.add(formalParam);
-		 	RESULT =subfunArray;  :} 
+			subdclArray.add(formalParam);
+		 	RESULT =subdclArray;  :} 
 	| VARLIST:v DOUBLE_COLON:d TBAS:t  POINT_SEMICOLON:ps FORMAL_PARAM:fp {: 
 			SubFuncion formalParam= new SubFuncion();
-			subfunArray.add(formalParam);
-			subfunArray.addAll(fp);
-			RESULT =subfunArray;  :} ;
+			subdclArray.add(formalParam);
+			subdclArray.addAll(fp);
+			RESULT =subdclArray;  :} ;
 	
 	
 	

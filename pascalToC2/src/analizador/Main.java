@@ -5,16 +5,35 @@ import java.util.ArrayList;
 
 public class Main {
 
-	private static String traductor(ArrayList<Programa> p) {
+	private static String traductor(ArrayList<Programa> p, ArrayList<Funcion> declaraciones, ArrayList<SubFuncion> sd) {
 		String code = null;
-		// cabecera
-		for (final Programa pr : p) {
-			// Here your room is available
-			System.out.println(pr.identificador);
-		}
-		// blq
+		// directivas
+		code = "#include <stdio.h>/n";
 
-		// resto
+		// constantes y variables
+		if (declaraciones.size() != 0) {
+
+			for (Funcion declaracion : declaraciones) {
+				// variables
+				if (declaracion.variable.toString() != "") {
+					System.out.println(declaracion.variable.toString());
+					System.out.println(declaracion.identificador.toString());
+
+				}
+				// constante
+				if (declaracion.constante.toString() != "") {
+					System.out.println(declaracion.constante.toString());
+				}
+				// funcion
+				if (declaracion.procedimiento.toString() != "") {
+					System.out.println(declaracion.procedimiento.toString());
+				}
+				// procedimiento
+				if (declaracion.funcion.toString() != "") {
+					System.out.println(declaracion.funcion.toString());
+				}
+			}
+		}
 
 		return code;
 	}
@@ -35,10 +54,18 @@ public class Main {
 			sintactico sintaxis = new sintactico(lexico);
 			sintaxis.parse();
 //////////////////////////////TRADUCTOR
-			// isntancio elementos
+// isntancio elementos
+			ArrayList<Programa> programa = sintaxis.pgrArray;
+			ArrayList<Funcion> declaraciones = sintaxis.dclArray;
+			ArrayList<SubFuncion> subdeclaraciones = sintaxis.subdclArray;
 
-			// transformo en el nuevo lenguaje
-			// String c = traductor(cabecera);
+			ArrayList<String> prueba = sintaxis.prueba;
+// ArrayList<String> p = sintaxis.prueba;
+
+			System.out.println(declaraciones.get(2).identificador);
+// System.out.println(declaraciones.get(1).variable);
+// System.out.println(declaraciones.get(0).tbas);
+			// String c = traductor(programa, declaraciones, subdeclaraciones);
 
 ////////////////////////////// GENERACION DEL FICHERO
 

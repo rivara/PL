@@ -1,4 +1,4 @@
-program amigo;
+program cuajo;
 var algo : INTEGER;
 begin
  pruab := 3;
