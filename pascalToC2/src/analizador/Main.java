@@ -5,8 +5,8 @@ import java.util.ArrayList;
 
 public class Main {
 
-	private static void traductor(ArrayList<Programa> p, ArrayList<Variable> variables, ArrayList<Constante> constantes,
-			ArrayList<Procedimiento> procedimientos, ArrayList<Funcion> funciones) {
+	private static void traductor(ArrayList<Programa> programa, ArrayList<Variable> variables,
+			ArrayList<Constante> constantes, ArrayList<Procedimiento> procedimientos, ArrayList<Funcion> funciones) {
 		String code = null;
 		// directivas
 		code = "#include <stdio.h>/n";
@@ -16,11 +16,6 @@ public class Main {
 
 			for (Variable variable : variables) {
 				// NO APARECE EN LA GRAMATICA RESULTADO
-				// System.out.println(variable.tipo);
-				/*
-				 * String tipo = variable.tipo; for (String ident : variable.identificador) {
-				 * System.out.println("#define " + ident + " " + tipo); }
-				 */
 			}
 		}
 		// constantes
@@ -33,31 +28,113 @@ public class Main {
 		}
 
 		// Procedimientos
-
-		/// public String procedimiento = "";
-		/// public String identificador = null;
-		// public ArrayList<FormalParam> formalParam = null;
 		if (procedimientos.size() != 0) {
 			for (Procedimiento procedimiento : procedimientos) {
-				// System.out.println(procedimiento.identificador);
+				System.out.print(procedimiento.procedimiento);
+				System.out.print(" ");
+				System.out.print(procedimiento.identificador);
+				// FALTA CONTROL DE VACIOS PARA VOID
+				System.out.print("(");
 				for (FormalParam parametros : procedimiento.formalParam) {
-
+					String tipo = parametros.tipo;
+					int cont = parametros.identificador.size();
 					for (String ident : parametros.identificador) {
-						System.out.println(ident);
+						System.out.print(tipo);
+						System.out.print(" ");
+						System.out.print(ident);
+						cont--;
+						if (cont != 0) {
+							System.out.print(",");
+						}
+
 					}
-
 				}
-
+				System.out.print(")");
+				// cuerpo procedimeinto
+				System.out.println("{");
+				for (Sent sentencia : procedimiento.bloque.sentlist) {
+					if (sentencia.asig != null) {
+						System.out.print(sentencia.asig);
+					}
+					if (sentencia.pro_call != null) {
+						System.out.print(sentencia.pro_call);
+					}
+				}
+				System.out.println("}");
 			}
 		}
 
 		// funciones
 		if (funciones.size() != 0) {
 			for (Funcion funcion : funciones) {
-				System.out.println(funcion.identificador);
+				System.out.print(funcion.tipo);
+				System.out.print(" ");
+				System.out.print(funcion.identificador);
+				// FALTA CONTROL DE VACIOS PARA VOID
+				System.out.print("(");
+				for (FormalParam parametros : funcion.formalParam) {
+					String tipo = parametros.tipo;
+					int cont = parametros.identificador.size();
+					for (String ident : parametros.identificador) {
+						System.out.print(tipo);
+						System.out.print(" ");
+						System.out.print(ident);
+						cont--;
+						if (cont != 0) {
+							System.out.print(",");
+						}
+
+					}
+
+				}
+				System.out.print(")");
+
+				System.out.print(funcion.bloque.begin);
+				// cuerpo funcion
+				String returno = "";
+				int cont = funcion.bloque.sentlist.size();
+				for (Sent sentencia : funcion.bloque.sentlist) {
+					if (sentencia.asig != null) {
+						System.out.print(sentencia.asig);
+					}
+					if (sentencia.pro_call != null) {
+						System.out.print(sentencia.pro_call);
+					}
+					// EL ULTIMO SERA de retorno
+					cont--;
+					if (cont == 0) {
+						if (sentencia.asig != null) {
+							System.out.print("retun " + sentencia.asig);
+						}
+						if (sentencia.pro_call != null) {
+							System.out.print("retun " + sentencia.pro_call);
+						}
+					}
+				}
+				System.out.print(funcion.bloque.end);
+				System.out.println("");
 			}
+
 		}
 		// programa principal
+
+		if (programa.size() != 0) {
+			for (Programa program : programa) {
+				System.out.print("void " + program.identificador + "(void)");
+				System.out.println("{");
+				// cuerpo
+				for (Sent sentencia : program.bloque.sentlist) {
+					if (sentencia.asig != null) {
+						System.out.print(sentencia.asig);
+					}
+					if (sentencia.pro_call != null) {
+						System.out.print(sentencia.pro_call);
+					}
+				}
+				System.out.println("}");
+			}
+
+		}
 
 	}
 
@@ -80,13 +157,11 @@ public class Main {
 
 			ArrayList<Variable> variables = sintaxis.variable;
 			ArrayList<Constante> constantes = sintaxis.constante;
-			ArrayList<Procedimiento> procedimiento = sintaxis.procedimiento;
-			ArrayList<Funcion> funcion = sintaxis.funcion;
+			ArrayList<Procedimiento> procedimientos = sintaxis.procedimiento;
+			ArrayList<Funcion> funciones = sintaxis.funcion;
 			ArrayList<Programa> programa = sintaxis.programa;
-			System.out.println(programa);
 			// CLASE TRADUCTOR
-			// System.out.println(funcion);
-			// traductor(programa, variables, constantes, procedimiento, funcion);
+			traductor(programa, variables, constantes, procedimientos, funciones);
 
 		}
 

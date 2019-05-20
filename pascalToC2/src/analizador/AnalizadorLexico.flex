@@ -63,6 +63,22 @@ numeric_integer_const = [+|-]? [0-9]+
 
 [ \t] | \n | \r | \r\n {;}
 
+/*DETECCIÓN DE COMENTARIOS */
+
+"{"[^\n]*"}" {;}
+
+"(*" {yybegin(COM);
+      auxLinea = yyline +1;
+      auxColumna = yycolumn +1;}
+<COM> [^] {;}
+<COM><<EOF>> {
+	System.err.println("Comentario sin cerrar, empieza en la linea " + (auxLinea) + " y en la columna " + (auxColumna));
+	System.exit(0);
+}
+<COM> "*)" {
+	yybegin(YYINITIAL);
+}
+
 /*DETECCIÓN DE UN CARÁCTER ERRÓNEO*/
 
 . { System.err.println("Error lexico: caracter no reconocido <" + yytext() + "> en la linea " + (yyline+1) + " y columna " + (yycolumn+1));}

@@ -1,4 +1,5 @@
 program amigo;
+
 procedure caso (nume:INTEGER);
 begin
  pruab := 3;

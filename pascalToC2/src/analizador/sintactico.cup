@@ -26,7 +26,10 @@ parser code {:
 	public static ArrayList<Bloque> bloque = new ArrayList<Bloque>(); 
 	//DECLIST
 	public static ArrayList<Dcl> dclistArray = new ArrayList<Dcl>(); 
-  	
+  	//CUERPO-- SENTENCIAS
+	public static ArrayList<Sent> sentListArray = new ArrayList<Sent>(); 
+   
+
 	public static ArrayList<String> ErroresSintacticos=new ArrayList<String>();
 	public int cont = 0;
 	   
@@ -63,17 +66,12 @@ parser code {:
 
 //NO TERMINALES
 
-	non terminal  SENT,ASIG,PROC_CALL,ID;
-	
-	non terminal SENTLIST;
-	non terminal EXP ;
-	non terminal EXPLIST;
-	non terminal OP,FACTOR;
-	
-
-
 	non terminal Programa PRG;
 	non terminal Bloque BLQ;
+	
+	non terminal ArrayList<Sent> SENTLIST;
+	non terminal Sent SENT;
+	
 	non terminal Dcl DCL;
 	non terminal ArrayList<Dcl>DCLLIST;
 
@@ -92,9 +90,7 @@ parser code {:
     non terminal ArrayList<FormalParam>	FORMAL_PARAMLIST ;
 	non terminal FormalParam FORMAL_PARAM;
 	// FINALES
-	non terminal String TBAS;
-	non terminal Simbolo SUBPARAMLIST,OPARIT;
-	
+	non terminal String TBAS,OPARIT,OP,ID,EXP,FACTOR,SUBPARAMLIST,EXPLIST,ASIG,PROC_CALL;
 	
 
 	
@@ -104,7 +100,6 @@ precedence left MOD,MULTIPLICACION,PLUS,DIV,MINUS;
 	
 start with PRG;	
 //GRAMATICA
-//CABECERA
 PRG ::= PROGRAM:p IDENT:id POINT_SEMICOLON:ps BLQ:b  POINT:pt{:
 	Programa pro = new Programa();
 	pro.programa = "program";
@@ -115,15 +110,12 @@ PRG ::= PROGRAM:p IDENT:id POINT_SEMICOLON:ps BLQ:b  POINT:pt{:
 ;
 
 
-BLQ ::=DCLLIST:dcl BEGIN:b  END:e{:
-	Bloque blo = new Bloque();
-    // public ArrayList<Dcist> dclist = null;
-	// public ArrayList<Sentlist> sentlist = null;	
-	ArrayList<Dcl> dcllist= new ArrayList<Dcl>();
-	dcllist.addAll(dcl);
-	blo.dclist=dcllist;
-	blo.begin="{";
+BLQ ::=DCLLIST:dcl BEGIN:b  SENTLIST:sl END:e{:
+	Bloque blo = new Bloque();	
+	//blo.dclist=dcl;
+	blo.begin="{\n";
 	blo.end="}";
+	blo.sentlist=sl;
 	RESULT =blo; :} 
 	;
 	
@@ -299,7 +291,7 @@ DCL ::= DEFCTE:cte {:
 
 	DEFFUN ::= FUNCTION:f IDENT:i FORMAL_PARAMLIST:fo DOUBLE_COLON:d TBAS:t POINT_SEMICOLON:p1 BLQ:b POINT_SEMICOLON:p2{: 
 	  		Funcion fun = new Funcion();
-			fun.funcion ="fun";
+			fun.funcion ="void";
 			fun.identificador = i;
 			ArrayList<FormalParam> fp = new ArrayList<FormalParam>();
 			fp.addAll(fo);
@@ -314,133 +306,104 @@ DCL ::= DEFCTE:cte {:
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////             PROGRAMA PPAL
+//////////////////////////////////             PROGRAMA PPAL   ///////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*	SENTLIST ::= SENT:s {: 
-	Programa p=new Programa();
-	sentArray.add(s);
-	RESULT = sentArray;
+// control
+	SENTLIST ::= SENT:s {: 
+	sentListArray.add(s);
+	RESULT = sentListArray;
 	 :}
 	|SENTLIST:sl SENT:s {: 
-	sentArray.add(s);
-	sentArray.addAll(sl);
-	RESULT = sentArray;
- :} 
- ;
+	sentListArray.add(s);
+	RESULT = sentListArray;
+ :} ;
 
 
-SENT ::= ASIG:a  POINT_SEMICOLON:ps{: 
-		
-		RESULT =sentenc; :}
-|PROC_CALL:pc POINT_SEMICOLON:ps{: 
-		
-		RESULT =sentenc;  :}
+
+
+SENT ::= ASIG:a POINT_SEMICOLON{:
+		Sent snt= new Sent();
+		snt.asig=a;
+		RESULT =snt; :}
+|PROC_CALL:pc POINT_SEMICOLON{: 
+		Sent snt= new Sent();
+		snt.pro_call=pc;
+		RESULT =snt;  :}
 	;
 
 
 ASIG ::= ID:id DOUBLEPOINTEQUAL:de EXP:e  {: 
-			Sentencia sentencia= new Sentencia();
-			RESULT =sentencia; :};
+			RESULT =id+"="+e+";\n"; 
+	:};
 
-ID ::= IDENT:i{: 
-			Sentencia sent= new Sentencia();
-			sent.identificador =i;
-			sentArray.add(sent);
-			RESULT = sent;  :};			
+
+
+	FACTOR ::= SIMPVALUE:s  {: 
+		RESULT =s;  :}
+	| OPEN_PARENTESIS:o EXP:e CLOSE_PARENTESIS:c {:
+
+				RESULT ="("+e+")"; :}
+	| IDENT:i  SUBPARAMLIST:s  {: 
+			RESULT =i+s; 
+	:}
+	;
+
+
+PROC_CALL ::= IDENT:i SUBPARAMLIST:s {:
+			RESULT =i+s; :}
+	;	
+	
+
+
+
+SUBPARAMLIST ::=  OPEN_PARENTESIS:o EXPLIST:e CLOSE_PARENTESIS:c {: 
+				RESULT ="("+e+")"; :}|
+		;
+
+
+
+EXPLIST ::= EXP:e {:RESULT =e;:}
+	| EXP:e SEMICOLON:s EXPLIST:ex  {: 
+			RESULT =e+","+ex;  :}
+	;
+
+
 
 
 	EXP ::= EXP:e1 OP:o EXP:e2  {: 
-			SubSentencia subsentencia = new SubSentencia();
-			subsentArray.addAll(e1);
-			subsentArray.add(o);
-			subsentArray.addAll(e2);
-			RESULT = subsentArray;
+		    String exp= e1 + o + e2;
+			RESULT = exp;
 :}
 	| FACTOR:f  {: 
-			SubSentencia subsentencia  = new SubSentencia();
-			subsentArray.add(f);
-			RESULT =subsentArray; :}
+		RESULT = f;	 :}
 	;
 	
 	OP ::= OPARIT:o  {: 
-			SubSentencia subsentencia = new SubSentencia();
-			subsentencia.op=o.op;
-			RESULT =subsentencia;  :}
+			RESULT =o;  :}
 	;
 
 
 	OPARIT ::= PLUS:p {: 
-			Simbolo simbolo= new Simbolo();
-			simbolo.mas =p;
-			simbolo.esMas=true;
-			RESULT =simbolo; 
+			
+			RESULT ="+"; 
 	:}
-	| MINUS:mi  {: 
-			Simbolo simbolo= new Simbolo();
-			simbolo.menos=mi;
-			simbolo.esMenos=true;
-			RESULT =simbolo;  
+	| MINUS:m  {: 
+			RESULT ="-";  
 	:}
 	| MULTIPLICACION:mu {:  
-			Simbolo simbolo= new Simbolo();
-			simbolo.multiplica =mu;
-			simbolo.esMultiplica=true;
-			RESULT=simbolo;
+			RESULT="*";
 	:}
 	| DIV:d  {: 
-			Simbolo simbolo= new Simbolo();
-			simbolo.divide =d;
-			simbolo.esDivide=true;
-			RESULT =simbolo;
+			RESULT ="/";
 	 :}
 	| MOD:m {: 
-			Simbolo simbolo= new Simbolo();
-			simbolo.mod =m;
-			simbolo.esMod=true;
-			RESULT = simbolo;
-	:}
-	;
+			RESULT = "%";
+	:};
 	
 	
- 
-	FACTOR ::= SIMPVALUE:s  {: 
-		SubSentencia subsentencia = new SubSentencia();
-		RESULT =subsentencia;  :}
-	| OPEN_PARENTESIS:o EXP:e CLOSE_PARENTESIS:c {:
-			SubSentencia subsentencia = new SubSentencia();
-			
-			RESULT =subsentencia; :}
-	| IDENT:i  SUBPARAMLIST:s  {: 
-			SubSentencia subsentencia = new SubSentencia();
-			RESULT =subsentencia; 
-	:}
-	;
-
-
-
-PROC_CALL ::= IDENT:i SUBPARAMLIST:s {:
-			Sentencia sentencia= new Sentencia();
-			sentencia.identificador=i;
- 			sentArray.add(sentencia);
-			RESULT =sentencia; :}
-	;	
+	ID ::= IDENT:i{: 
+			RESULT = i;  :};			
 	
-SUBPARAMLIST ::=  OPEN_PARENTESIS:o EXPLIST:e CLOSE_PARENTESIS:c {: 
-			Sentencia sentencia= new Sentencia();
-			sentencia.abreParenteis =o;
-			sentencia.cierraParentesis =c;
-			sentArray.add(sentencia);
-			RESULT =sentencia;
-		:}|
-		;
 
-// ARRAY
-EXPLIST ::= EXP:e  {: 
-			expListArray.add(e);
-			RESULT = expListArray;  :}
-	| EXP:e SEMICOLON:s EXPLIST:ex  {: 
-			expListArray.add(e);
-			expListArray.addAll(ex);
-			RESULT =expListArray;  :}
-	;
-*/
+
