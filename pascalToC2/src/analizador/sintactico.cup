@@ -16,11 +16,11 @@ parser code {:
     public static ArrayList<ArrayList<SubSentencia>>expListArray = new ArrayList<ArrayList<SubSentencia>>();
 	// DECLARACIONES
     public static ArrayList<Funcion> dclArray = new ArrayList<Funcion>(); 
- public static ArrayList<String> prueba = new ArrayList<String>(); 
+ 	public static ArrayList<String> prueba = new ArrayList<String>(); 
 	public static ArrayList<SubFuncion> subdclArray = new ArrayList<SubFuncion>(); 
 
-	public static ArrayList<String> prueba = new ArrayList<String>(); 
-
+ 	public static ArrayList<Variable> variable = new ArrayList<Variable>(); 
+ 	public static ArrayList<String> idents = new ArrayList<String>(); 
 
   	public static ArrayList<String> ErroresSintacticos=new ArrayList<String>();
 	public int cont = 0;
@@ -63,10 +63,15 @@ parser code {:
 	non terminal ArrayList<SubSentencia> EXP ;
 	non terminal ArrayList<ArrayList<SubSentencia>> EXPLIST;
 	non terminal SubSentencia OP,FACTOR;
-	non terminal Funcion DCL,DEFCTE,DEFVAR,DEFPROC,DEFFUN;
-	non terminal ArrayList<Funcion> DCLLIST,CTELIST,DEFVARLIST;
-	non terminal SubFuncion	FORMAL_PARAMLIST,TBAS ;
+	non terminal Funcion DCL,DEFCTE,DEFPROC,DEFFUN;
+	non terminal ArrayList<Funcion> DCLLIST,CTELIST;
+	non terminal SubFuncion	FORMAL_PARAMLIST ;
 	non terminal ArrayList<SubFuncion> FORMAL_PARAM;
+	non terminal String TBAS;
+	//////////// PRUEBA STRING
+
+	non terminal Variable DEFVAR;
+	non terminal ArrayList<Variable> DEFVARLIST;
 	non terminal ArrayList<String> VARLIST;
 	non terminal Simbolo SUBPARAMLIST,SIMPVALUE,OPARIT;
 	
@@ -106,9 +111,11 @@ DCLLIST ::=  DCLLIST:dcl DCL:dc{:
 	
 
 DCL ::=DEFCTE:d {: 
-			RESULT =d; :}  
+			Funcion f = new Funcion();
+			RESULT =f; :}  
 		|DEFVAR:dv {:
-			RESULT = dv; :} 
+			Funcion f = new Funcion();
+			RESULT = f; :} 
 		| DEFPROC:dp{:
 			RESULT =dp; :} 
 		| DEFFUN:df{: 
@@ -118,56 +125,55 @@ DCL ::=DEFCTE:d {:
 	
 ///////////////////////////////////////////////////////////// VARIABLES	
 		DEFVAR ::= VAR:v DEFVARLIST POINT_SEMICOLON:p  {: 
-			Funcion defvar = new Funcion();
-			defvar.variable="var";
-			dclArray.add(defvar);
-			RESULT =defvar;  :} 
+			Variable var = new Variable();
+			var.variable="var";
+			variable.add(var);
+			RESULT =var;  :} 
 	;
 
 
 
-    DEFVARLIST ::= VARLIST:v DOUBLE_COLON:d TBAS:t  {:
-			Funcion defvarlist = new Funcion();
-			//defvarlist.varLista.add(prueba);
-			defvarlist.dosPuntos = d;
-			defvarlist.tbas=t.tbas;
-			dclArray.add(defvarlist);
-			RESULT = dclArray;   :}	
-	| DEFVARLIST:dl POINT_SEMICOLON:p VARLIST:v DOUBLE_COLON:d TBAS:t  {:
-			Funcion defvarlist = new Funcion();
-			//defvarlist.varLista.add(prueba);
-			defvarlist.dosPuntos = d;
-			defvarlist.tbas=t.tbas;
-			dclArray.add(defvarlist);  
-			dclArray.addAll(dl);
-			RESULT = dclArray; :} 
+    DEFVARLIST ::=VARLIST:v  DOUBLE_COLON:d TBAS:t  {:
+			Variable var = new Variable();			
+			ArrayList<String>array= new ArrayList<String>();
+			array.addAll(v);
+			var.identificador=array;
+			var.tipo=t;
+			variable.add(var);
+			RESULT = variable;   :}	
+			
+			
+	| DEFVARLIST:dl POINT_SEMICOLON:p  VARLIST:v DOUBLE_COLON:d TBAS:t  {:
+			Variable var = new Variable();
+			ArrayList<String>array= new ArrayList<String>();
+			array.addAll(v);
+			var.identificador=v;
+			var.tipo=t;
+			variable.add(var);
+			RESULT = variable; :} 
 			;
 
 	VARLIST ::= IDENT:i  {: 
-			SubFuncion subfuncion = new SubFuncion();
-			subfuncion.identificador="ww";
-			prueba.add(i);
-			RESULT =prueba; :}
+		  ArrayList<String>var= new ArrayList<String>();
+			var.add(i);
+       		RESULT =var;   :}
+       		
 	| IDENT:i  SEMICOLON:s VARLIST:v  {:
-			SubFuncion subfuncion = new SubFuncion();
-			subfuncion.identificador = "ee";
-			prueba.add(i);
-			prueba.addAll(v);
-
-       		RESULT =prueba;  :}
+			ArrayList<String> var = new ArrayList<String>();
+			var.add(i);
+			var.addAll(v);
+       		RESULT =var;    :}
 	;
 	
 	
 
 	TBAS ::= INTEGER {: 
-			SubFuncion tbas= new SubFuncion();
-			tbas.entero ="integer";
-			subdclArray.add(tbas);
+			String tbas;
+			tbas ="integer";
 			RESULT =tbas; :}
 	| REAL {: 
-			SubFuncion tbas= new SubFuncion();
-			tbas.real ="real";
-			subdclArray.add(tbas);	
+			String tbas;
+			tbas ="real";
 			RESULT =tbas;  :}
 	;
 	

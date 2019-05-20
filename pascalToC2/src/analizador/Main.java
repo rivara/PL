@@ -16,8 +16,9 @@ public class Main {
 			for (Funcion declaracion : declaraciones) {
 				// variables
 				if (declaracion.variable.toString() != "") {
-					System.out.println(declaracion.variable.toString());
-					System.out.println(declaracion.identificador.toString());
+					// no
+					// System.out.println(declaracion.variable.toString());
+					// System.out.println(declaracion.identificador.toString());
 
 				}
 				// constante
@@ -55,15 +56,16 @@ public class Main {
 			sintaxis.parse();
 //////////////////////////////TRADUCTOR
 // isntancio elementos
-			ArrayList<Programa> programa = sintaxis.pgrArray;
-			ArrayList<Funcion> declaraciones = sintaxis.dclArray;
-			ArrayList<SubFuncion> subdeclaraciones = sintaxis.subdclArray;
-
-			ArrayList<String> prueba = sintaxis.prueba;
+			/*
+			 * ArrayList<Programa> programa = sintaxis.pgrArray; ArrayList<Funcion>
+			 * declaraciones = sintaxis.dclArray; ArrayList<SubFuncion> subdeclaraciones =
+			 * sintaxis.subdclArray;
+			 */
+			ArrayList<Variable> variable = sintaxis.variable;
 // ArrayList<String> p = sintaxis.prueba;
 
-			System.out.println(declaraciones.get(2).identificador);
-// System.out.println(declaraciones.get(1).variable);
+			// System.out.println(prueba.get(0).toString());
+			System.out.println(variable);
 // System.out.println(declaraciones.get(0).tbas);
 			// String c = traductor(programa, declaraciones, subdeclaraciones);
 
