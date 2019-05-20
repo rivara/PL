@@ -2,11 +2,11 @@ package analizador;
 
 import java.util.ArrayList;
 
-public class Funcion {
-	public String funcion = "";
+public class Procedimiento {
+
+	public String procedimiento = "";
 	public String identificador = null;
 	public ArrayList<FormalParam> formalParam = null;
 	public Bloque bloque = null;
-	public String tipo = "";
 
 }

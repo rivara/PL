@@ -5,38 +5,60 @@ import java.util.ArrayList;
 
 public class Main {
 
-	private static String traductor(ArrayList<Programa> p, ArrayList<Funcion> declaraciones, ArrayList<SubFuncion> sd) {
+	private static void traductor(ArrayList<Programa> p, ArrayList<Variable> variables, ArrayList<Constante> constantes,
+			ArrayList<Procedimiento> procedimientos, ArrayList<Funcion> funciones) {
 		String code = null;
 		// directivas
 		code = "#include <stdio.h>/n";
 
-		// constantes y variables
-		if (declaraciones.size() != 0) {
+		// variables
+		if (variables.size() != 0) {
 
-			for (Funcion declaracion : declaraciones) {
-				// variables
-				if (declaracion.variable.toString() != "") {
-					// no
-					// System.out.println(declaracion.variable.toString());
-					// System.out.println(declaracion.identificador.toString());
+			for (Variable variable : variables) {
+				// NO APARECE EN LA GRAMATICA RESULTADO
+				// System.out.println(variable.tipo);
+				/*
+				 * String tipo = variable.tipo; for (String ident : variable.identificador) {
+				 * System.out.println("#define " + ident + " " + tipo); }
+				 */
+			}
+		}
+		// constantes
+		if (constantes.size() != 0) {
 
-				}
-				// constante
-				if (declaracion.constante.toString() != "") {
-					System.out.println(declaracion.constante.toString());
-				}
-				// funcion
-				if (declaracion.procedimiento.toString() != "") {
-					System.out.println(declaracion.procedimiento.toString());
-				}
-				// procedimiento
-				if (declaracion.funcion.toString() != "") {
-					System.out.println(declaracion.funcion.toString());
-				}
+			for (Constante constante : constantes) {
+
+				System.out.println("#define " + constante.identificador + " " + constante.valor);
 			}
 		}
 
-		return code;
+		// Procedimientos
+
+		/// public String procedimiento = "";
+		/// public String identificador = null;
+		// public ArrayList<FormalParam> formalParam = null;
+		if (procedimientos.size() != 0) {
+			for (Procedimiento procedimiento : procedimientos) {
+				// System.out.println(procedimiento.identificador);
+				for (FormalParam parametros : procedimiento.formalParam) {
+
+					for (String ident : parametros.identificador) {
+						System.out.println(ident);
+					}
+
+				}
+
+			}
+		}
+
+		// funciones
+		if (funciones.size() != 0) {
+			for (Funcion funcion : funciones) {
+				System.out.println(funcion.identificador);
+			}
+		}
+		// programa principal
+
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -54,41 +76,18 @@ public class Main {
 			@SuppressWarnings("deprecation")
 			sintactico sintaxis = new sintactico(lexico);
 			sintaxis.parse();
-//////////////////////////////TRADUCTOR
-// isntancio elementos
-			/*
-			 * ArrayList<Programa> programa = sintaxis.pgrArray; ArrayList<Funcion>
-			 * declaraciones = sintaxis.dclArray; ArrayList<SubFuncion> subdeclaraciones =
-			 * sintaxis.subdclArray;
-			 */
-			ArrayList<Variable> variable = sintaxis.variable;
-// ArrayList<String> p = sintaxis.prueba;
+			// isntancio elementos
 
-			// System.out.println(prueba.get(0).toString());
-			System.out.println(variable);
-// System.out.println(declaraciones.get(0).tbas);
-			// String c = traductor(programa, declaraciones, subdeclaraciones);
+			ArrayList<Variable> variables = sintaxis.variable;
+			ArrayList<Constante> constantes = sintaxis.constante;
+			ArrayList<Procedimiento> procedimiento = sintaxis.procedimiento;
+			ArrayList<Funcion> funcion = sintaxis.funcion;
+			ArrayList<Programa> programa = sintaxis.programa;
+			System.out.println(programa);
+			// CLASE TRADUCTOR
+			// System.out.println(funcion);
+			// traductor(programa, variables, constantes, procedimiento, funcion);
 
-////////////////////////////// GENERACION DEL FICHERO
-
-			/*
-			 * try {
-			 * 
-			 * FileInputStream fstream = new FileInputStream(args[0]); File file = new
-			 * File("prueba.c"); FileOutputStream fop = new FileOutputStream(file); if
-			 * (!file.exists()) { file.createNewFile(); } // LEO EL FICHERO String content =
-			 * "hOLA"; // Imprimimos en fichero byte[] contentInBytes = content.getBytes();
-			 * fop.write(contentInBytes); fop.flush(); fop.close(); } catch
-			 * (FileNotFoundException e) { // TODO Auto-generated catch block
-			 * e.printStackTrace();
-			 * 
-			 * }
-			 * 
-			 * catch (java.io.IOException e) { System.err.println();
-			 * System.err.println("ERROR DURANTE LA LECTURA DEL ARCHIVO"); System.exit(0); }
-			 * catch (Exception e) { System.err.println();
-			 * System.err.println("[ERROR DESCONOCIDO]" + e.getMessage()); System.exit(0); }
-			 */
 		}
 
 	}

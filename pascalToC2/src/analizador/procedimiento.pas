@@ -1,5 +1,5 @@
 program amigo;
-procedure algo (nume:INTEGER);
+procedure caso (nume:INTEGER);
 begin
  pruab := 3;
 end;

@@ -62,6 +62,5 @@ public class Simbolo {
 	public ArrayList<Simbolo> asig;
 	public ArrayList<Simbolo> subparamLista;
 	public ArrayList<Simbolo> op;
-	public ArrayList<SubSentencia> exp;
 
 }

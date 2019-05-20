@@ -8,21 +8,26 @@
 
 //CONTROL DE ERRORES 
 parser code {:
- 	public static ArrayList<Programa> pgrArray = new ArrayList<Programa>(); 
-	public static ArrayList<Programa> blqArray = new ArrayList<Programa>(); 
-	// SENTENCIAS	
-	public static ArrayList<Sentencia> sentArray = new ArrayList<Sentencia>();
-	public static ArrayList<SubSentencia> subsentArray = new ArrayList<SubSentencia>();
-    public static ArrayList<ArrayList<SubSentencia>>expListArray = new ArrayList<ArrayList<SubSentencia>>();
-	// DECLARACIONES
-    public static ArrayList<Funcion> dclArray = new ArrayList<Funcion>(); 
- 	public static ArrayList<String> prueba = new ArrayList<String>(); 
-	public static ArrayList<SubFuncion> subdclArray = new ArrayList<SubFuncion>(); 
 
+	//DECLARACIONES
+    public static ArrayList<Funcion> dclArray = new ArrayList<Funcion>(); 
+	//VARIABLES
  	public static ArrayList<Variable> variable = new ArrayList<Variable>(); 
  	public static ArrayList<String> idents = new ArrayList<String>(); 
-
-  	public static ArrayList<String> ErroresSintacticos=new ArrayList<String>();
+	//CONSTANTE
+ 	public static ArrayList<Constante> constante = new ArrayList<Constante>(); 
+	//PROCEDIMIENTO
+	public static ArrayList<Procedimiento> procedimiento = new ArrayList<Procedimiento>(); 
+	//FUNCION
+	public static ArrayList<Funcion> funcion = new ArrayList<Funcion>(); 
+ 	//PROGRAMA
+	public static ArrayList<Programa> programa = new ArrayList<Programa>(); 
+    //BLOQUE
+	public static ArrayList<Bloque> bloque = new ArrayList<Bloque>(); 
+	//DECLIST
+	public static ArrayList<Dcl> dclistArray = new ArrayList<Dcl>(); 
+  	
+	public static ArrayList<String> ErroresSintacticos=new ArrayList<String>();
 	public int cont = 0;
 	   
 	
@@ -57,23 +62,38 @@ parser code {:
 	 
 
 //NO TERMINALES
-	non terminal Programa BLQ,PRG;
-	non terminal Sentencia SENT,ASIG,PROC_CALL,ID;
-	non terminal ArrayList<Sentencia> SENTLIST;
-	non terminal ArrayList<SubSentencia> EXP ;
-	non terminal ArrayList<ArrayList<SubSentencia>> EXPLIST;
-	non terminal SubSentencia OP,FACTOR;
-	non terminal Funcion DCL,DEFCTE,DEFPROC,DEFFUN;
-	non terminal ArrayList<Funcion> DCLLIST,CTELIST;
-	non terminal SubFuncion	FORMAL_PARAMLIST ;
-	non terminal ArrayList<SubFuncion> FORMAL_PARAM;
-	non terminal String TBAS;
-	//////////// PRUEBA STRING
 
+	non terminal  SENT,ASIG,PROC_CALL,ID;
+	
+	non terminal SENTLIST;
+	non terminal EXP ;
+	non terminal EXPLIST;
+	non terminal OP,FACTOR;
+	
+
+
+	non terminal Programa PRG;
+	non terminal Bloque BLQ;
+	non terminal Dcl DCL;
+	non terminal ArrayList<Dcl>DCLLIST;
+
+	////VARIABLES
 	non terminal Variable DEFVAR;
 	non terminal ArrayList<Variable> DEFVARLIST;
 	non terminal ArrayList<String> VARLIST;
-	non terminal Simbolo SUBPARAMLIST,SIMPVALUE,OPARIT;
+	////CONSTANTES
+	non terminal Constante DEFCTE;
+	non terminal ArrayList<Constante> CTELIST;
+	non terminal String SIMPVALUE;
+	//FUNCIONES
+	non terminal Funcion DEFFUN;
+	//POCEDIMIENTOS
+	non terminal Procedimiento DEFPROC;
+    non terminal ArrayList<FormalParam>	FORMAL_PARAMLIST ;
+	non terminal FormalParam FORMAL_PARAM;
+	// FINALES
+	non terminal String TBAS;
+	non terminal Simbolo SUBPARAMLIST,OPARIT;
 	
 	
 
@@ -84,57 +104,67 @@ precedence left MOD,MULTIPLICACION,PLUS,DIV,MINUS;
 	
 start with PRG;	
 //GRAMATICA
-//ASIGNACIONES
+//CABECERA
 PRG ::= PROGRAM:p IDENT:id POINT_SEMICOLON:ps BLQ:b  POINT:pt{:
-	Programa programa = new Programa();
-	programa.programa = "program";
-	programa.identificador = id;
-	programa.puntocoma = ";";
-	pgrArray.add(programa);
-	RESULT =programa;:} 
+	Programa pro = new Programa();
+	pro.programa = "program";
+	pro.identificador = id;
+	pro.bloque = b;
+	programa.add(pro);
+	RESULT =pro;:} 
 ;
 
-BLQ ::=DCLLIST:dc BEGIN:b SENTLIST:s END:e{:
-	Programa bloque = new Programa();
-    bloque.empieza=b;
-	bloque.fin=e;
-    blqArray.add(bloque);
-	RESULT =bloque; :} 
+
+BLQ ::=DCLLIST:dcl BEGIN:b  END:e{:
+	Bloque blo = new Bloque();
+    // public ArrayList<Dcist> dclist = null;
+	// public ArrayList<Sentlist> sentlist = null;	
+	ArrayList<Dcl> dcllist= new ArrayList<Dcl>();
+	dcllist.addAll(dcl);
+	blo.dclist=dcllist;
+	blo.begin="{";
+	blo.end="}";
+	RESULT =blo; :} 
 	;
 	
-/// PARTE1
-/////////////////////// parte 1
+DCLLIST::= DCLLIST:dcl DCL:d{:
+	ArrayList<Dcl> dcllist= new ArrayList<Dcl>();
+	dcllist.add(d);
+    RESULT =dcllist; 
 
-DCLLIST ::=  DCLLIST:dcl DCL:dc{: 
-		RESULT=dclArray;:} |;
-	
-	
-
-DCL ::=DEFCTE:d {: 
-			Funcion f = new Funcion();
-			RESULT =f; :}  
-		|DEFVAR:dv {:
-			Funcion f = new Funcion();
-			RESULT = f; :} 
-		| DEFPROC:dp{:
-			RESULT =dp; :} 
-		| DEFFUN:df{: 
-			RESULT =df; :} 
+:}|
+;
+DCL ::= DEFCTE:cte {:
+			Dcl dcl = new Dcl();
+			dcl.constante=cte;
+			RESULT =dcl;
+:}	
+		|DEFVAR:var {:
+			Dcl dcl = new Dcl();
+			dcl.variable=var;
+			RESULT =dcl;
+:} 
+		|DEFPROC:proc  {:
+			Dcl dcl = new Dcl();
+			dcl.procedimiento=proc;
+			RESULT =dcl;
+:} 
+		|DEFFUN: fun  {:
+			Dcl dcl = new Dcl();
+			dcl.funcion=fun;
+			RESULT =dcl;
+:} 
 	;	
 	
-	
+
 ///////////////////////////////////////////////////////////// VARIABLES	
 		DEFVAR ::= VAR:v DEFVARLIST POINT_SEMICOLON:p  {: 
 			Variable var = new Variable();
-			var.variable="var";
-			variable.add(var);
 			RESULT =var;  :} 
 	;
-
-
-
     DEFVARLIST ::=VARLIST:v  DOUBLE_COLON:d TBAS:t  {:
-			Variable var = new Variable();			
+			Variable var = new Variable();
+			var.variable="var";			
 			ArrayList<String>array= new ArrayList<String>();
 			array.addAll(v);
 			var.identificador=array;
@@ -169,11 +199,11 @@ DCL ::=DEFCTE:d {:
 
 	TBAS ::= INTEGER {: 
 			String tbas;
-			tbas ="integer";
+			tbas ="int";
 			RESULT =tbas; :}
 	| REAL {: 
 			String tbas;
-			tbas ="real";
+			tbas ="float";
 			RESULT =tbas;  :}
 	;
 	
@@ -181,78 +211,112 @@ DCL ::=DEFCTE:d {:
 	
 	
 ///////////////////////////////////////////////////////////// CONSTANTES	
-	
+
 	
 	DEFCTE ::=CONST:cons CTELIST:ct {: 
-			Funcion defcte=new Funcion();
-			RESULT = defcte; :} 
+			Constante cte=new Constante();
+			RESULT = cte; :} 
 	;
 	
 		
 	
 	CTELIST ::= IDENT:i EQUAL:e SIMPVALUE:s POINT_SEMICOLON:ps{: 
-				Funcion ctelist = new Funcion();
-				ctelist.identificador = i;
-				ctelist.igual = e;
-				ctelist.simpvalue = s.simpvalue;
-				ctelist.puntocoma = ps;
-				dclArray.add(ctelist);
-				RESULT = dclArray;  :} 
+				Constante cte=new Constante();
+				cte.constante = "const";
+				cte.identificador = i;
+				cte.valor = s;
+				constante.add(cte);
+				RESULT = constante;  :} 
 	|CTELIST:cl IDENT:i EQUAL:e SIMPVALUE:s  POINT_SEMICOLON:ps{: 
-				Funcion ctelist = new Funcion();
-				ctelist.identificador = i;
-				ctelist.igual = e;
-				ctelist.simpvalue = s.simpvalue;
-				ctelist.puntocoma = ps;
-				dclArray.add(ctelist);
-				dclArray.addAll(cl);
-				RESULT = dclArray; :} 
+				Constante cte=new Constante();
+				cte.constante = "const";
+				cte.identificador = i;
+				cte.valor = s;
+				constante.add(cte);
+				RESULT = constante; :} 
 	;
 	
+	
+	SIMPVALUE ::= NUMERIC_INTEGER_CONST:integer {:	
+			RESULT =integer; :}
+	 		
+			| NUMERIC_REAL_CONST:real {: 
+			RESULT =real; :}
+			
+			| STRING_CONST:string  {: 
+			RESULT =string; :}
+	;
+
 
 ///////////////////////////////////////////////////////////// PROCEDIMIENTOS	
 	
 
 	DEFPROC ::= PROCEDURE:p IDENT:i FORMAL_PARAMLIST:fo POINT_SEMICOLON:ps1 BLQ:b POINT_SEMICOLON:ps2{:
-  			Funcion defproc = new Funcion();
-			defproc.procedimiento = p;
-			defproc.identificador = i;
-			dclArray.add(defproc);
-			RESULT = defproc;:} 
+  			Procedimiento proc = new Procedimiento();
+			proc.procedimiento ="void";
+			proc.identificador = i;
+			//array de params
+			ArrayList<FormalParam> fp = new ArrayList<FormalParam>();
+			fp.addAll(fo);
+			proc.formalParam=fp;
+			// bloque
+			proc.bloque=b;
+			procedimiento.add(proc);
+			RESULT = proc;:} 
 	;
 	
 	
 
 	FORMAL_PARAMLIST ::= OPEN_PARENTESIS:o FORMAL_PARAM:f CLOSE_PARENTESIS:c {:
-			SubFuncion formalParam= new SubFuncion();
-			RESULT = formalParam;:}|
+			ArrayList<FormalParam> fp = new ArrayList<FormalParam>();
+			fp.add(f);
+			RESULT = fp;:}|
 	;
 	
 
 
 	FORMAL_PARAM ::= VARLIST:v DOUBLE_COLON:d  TBAS:t {:
-			SubFuncion formalParam= new SubFuncion();
-			subdclArray.add(formalParam);
-		 	RESULT =subdclArray;  :} 
+			FormalParam formalp= new FormalParam();
+			ArrayList<String>array= new ArrayList<String>();
+			array.addAll(v);
+			formalp.identificador=v;		
+			formalp.tipo=t;
+		 	RESULT =formalp;  :} 
 	| VARLIST:v DOUBLE_COLON:d TBAS:t  POINT_SEMICOLON:ps FORMAL_PARAM:fp {: 
-			SubFuncion formalParam= new SubFuncion();
-			subdclArray.add(formalParam);
-			subdclArray.addAll(fp);
-			RESULT =subdclArray;  :} ;
+			FormalParam formalp= new FormalParam();
+			ArrayList<String>array= new ArrayList<String>();
+			array.addAll(v);
+			formalp.identificador=v;		
+			formalp.tipo=t;
+		 	RESULT =formalp;:} ;
 	
 	
+
+
+
 	
 ///////////////////////////////////////////////////////////// FUNCIONES
 
 	DEFFUN ::= FUNCTION:f IDENT:i FORMAL_PARAMLIST:fo DOUBLE_COLON:d TBAS:t POINT_SEMICOLON:p1 BLQ:b POINT_SEMICOLON:p2{: 
-	  		Funcion funcion = new Funcion();
-			RESULT =funcion; :} 
+	  		Funcion fun = new Funcion();
+			fun.funcion ="fun";
+			fun.identificador = i;
+			ArrayList<FormalParam> fp = new ArrayList<FormalParam>();
+			fp.addAll(fo);
+			fun.formalParam=fp;
+			// bloque
+			fun.bloque=b;
+			fun.tipo = t;
+			funcion.add(fun);
+			RESULT = fun;:} 
 	;
 
-	
-// PARTE 2 PRINICPAL	
 
-	SENTLIST ::= SENT:s {: 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////             PROGRAMA PPAL
+
+/*	SENTLIST ::= SENT:s {: 
 	Programa p=new Programa();
 	sentArray.add(s);
 	RESULT = sentArray;
@@ -266,14 +330,10 @@ DCL ::=DEFCTE:d {:
 
 
 SENT ::= ASIG:a  POINT_SEMICOLON:ps{: 
-		Sentencia sentenc=new Sentencia();
-		sentenc.puntocoma=ps;
-		sentArray.add(sentenc);
+		
 		RESULT =sentenc; :}
 |PROC_CALL:pc POINT_SEMICOLON:ps{: 
-		Sentencia sentenc=new Sentencia();
-		sentenc.dosPuntos=ps;
-		sentArray.add(sentenc);
+		
 		RESULT =sentenc;  :}
 	;
 
@@ -356,24 +416,6 @@ ID ::= IDENT:i{:
 	:}
 	;
 
-SIMPVALUE ::= NUMERIC_INTEGER_CONST:ni {:
-			Simbolo integer= new Simbolo();
-			integer.numericoEnteroConstante =ni;
-			integer.esNumericoEnteroConstante=true;			
-			RESULT =integer; :}
-	 		
-			| NUMERIC_REAL_CONST:nr {: 
-			Simbolo real= new Simbolo();
-			real.numericoRealConstante =nr;
-			real.esNumericoRealConstante=true;	
-			RESULT =real; :}
-			
-			| STRING_CONST:sc  {: 
-			Simbolo constante= new Simbolo();
-			constante.textoconstante =sc;
-			constante.esTextoconstante=true;	
-			RESULT =constante; :}
-	;
 
 
 PROC_CALL ::= IDENT:i SUBPARAMLIST:s {:
@@ -401,7 +443,4 @@ EXPLIST ::= EXP:e  {:
 			expListArray.addAll(ex);
 			RESULT =expListArray;  :}
 	;
-	 
-
-
-
+*/

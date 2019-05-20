@@ -1,7 +1,10 @@
 program amigo;
-var amigo:INTEGER;
-var al,gb :INTEGER;
+function algo (nume:INTEGER):INTEGER;
 begin
- pruab := 3;
+
+end;
+
+begin
+
 end
 .
