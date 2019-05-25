@@ -203,13 +203,10 @@ public class Main {
 			ArrayList<Programa> programa = sintaxis.programa;
 			// CLASE TRADUCTOR
 			String code = traductor(programa, variables, constantes, procedimientos, funciones);
-			System.out.println(code);
-			// ggenerador de fichero
-			// String str = "World";
-			/*
-			 * BufferedWriter writer = new BufferedWriter(new FileWriter("programa.c",
-			 * true)); writer.append(' '); writer.append(code); writer.close();
-			 */
+			// System.out.println(code);
+			System.out.println("fichero generado");
+			// generador de fichero
+
 			try (Writer writer = new BufferedWriter(
 					new OutputStreamWriter(new FileOutputStream("programa.c"), "utf-8"))) {
 				writer.write(code);
